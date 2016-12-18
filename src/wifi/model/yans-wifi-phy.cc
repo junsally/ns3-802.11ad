@@ -316,6 +316,9 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
     case YansWifiPhy::RX:
       NS_LOG_DEBUG ("drop packet because already in Rx (power=" <<
                     rxPowerW << "W)");
+      
+//      std::cout << "drop packet because already in Rx (power=" << rxPowerW << "W)" << std::endl << std::endl;         //Sally test 
+
       NotifyRxDrop (packet);
       if (endRx > Simulator::Now () + m_state->GetDelayUntilIdle ())
         {
@@ -338,7 +341,11 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
     case YansWifiPhy::CCA_BUSY:
     case YansWifiPhy::IDLE:
       if (rxPowerW > GetEdThresholdW ()) //checked here, no need to check in the payload reception (current implementation assumes constant rx power over the packet duration)
-        {
+        
+      {
+//                  std::cout << "test rxPowerW " << rxPowerW << std::endl << std::endl; //Sally test
+
+
           if (m_rdsActivated)
             {
               NS_LOG_DEBUG ("Receiving as RDS in FD-AF Mode");
@@ -355,6 +362,7 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
                     {
                       m_rdsSector = m_dstSector;
                       m_rdsAntenna = m_dstAntenna;
+
                     }
                   else
                     {
@@ -446,6 +454,9 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
         {
           NS_LOG_DEBUG ("drop packet because signal power too Small (" <<
                         rxPowerW << "<" << GetEdThresholdW () << ")");
+          
+//            std::cout << "drop packet because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << ")" << std::endl << std::endl; //Sally test
+
           NotifyRxDrop (packet);
           m_plcpSuccess = false;
           goto maybeCcaBusy;
@@ -650,6 +661,9 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
   else
     {
       NS_LOG_DEBUG ("Drop TRN Field because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW ());
+   
+      std::cout << "Drop TRN Field because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << std::endl << std::endl;
+
     }
 }
 
