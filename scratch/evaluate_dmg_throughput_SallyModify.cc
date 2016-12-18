@@ -104,12 +104,15 @@ main(int argc, char *argv[])
 
   cout << "MCS" << '\t' << "Throughput (Mbps)" << endl;
 
-  uint i = 1; /* MCS Index */   
+  uint i = 24; /* MCS Index */   //Sally modified
 
+  std::list<std::string>::const_iterator iter = dataRateList.end ();//Sally add
+  iter--;      //Sally add
 
-  for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
-    {
+ // for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
+   // {
   
+//     if ((i != 1) && (i != 24)) continue; //Sally add
 
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
@@ -143,8 +146,8 @@ main(int argc, char *argv[])
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
       wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-79));
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-79 + 3));
+      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
       /* Set the phy layer error model */
       wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       /* Set default algorithm for all nodes to be constant rate */
@@ -261,7 +264,7 @@ main(int argc, char *argv[])
       cout << "MCS" << mcs.str () << '\t' << sink->GetTotalRx () * (double) 8/1e6 << endl;
 
       Simulator::Destroy ();
-   }
+   // }
 
   return 0;
 }
