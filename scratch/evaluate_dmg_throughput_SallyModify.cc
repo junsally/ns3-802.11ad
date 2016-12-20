@@ -104,10 +104,9 @@ main(int argc, char *argv[])
 
   cout << "MCS" << '\t' << "Throughput (Mbps)" << endl;
 
-  uint i = 24; /* MCS Index */   //Sally modified
+  uint i = 1; /* MCS Index */   //Sally modified
 
-  std::list<std::string>::const_iterator iter = dataRateList.end ();//Sally add
-  iter--;      //Sally add
+  std::list<std::string>::const_iterator iter = dataRateList.begin ();//Sally add
 
  // for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
    // {
@@ -146,8 +145,8 @@ main(int argc, char *argv[])
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
       wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
+      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-79));
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-79 + 3));
       /* Set the phy layer error model */
       wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       /* Set default algorithm for all nodes to be constant rate */
