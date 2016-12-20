@@ -128,12 +128,12 @@ SensitivityModel60GHz::GetChunkSuccessRate (WifiMode mode, WifiTxVector txVector
   else
       NS_FATAL_ERROR("Unrecognized 60 GHz modulation");
 
- // std::cout << "snr = " << snr << std::endl;
- // std::cout << "noise = " << noise << std::endl;
- // std::cout << "rss = " << rss << std::endl;
- // std::cout << "rss_delta = " << rss_delta << std::endl;
- // std::cout << "no abs = " << (10 * (rss_delta + 12)) << std::endl;
- // std::cout << "with abs = " << abs((10 * (rss_delta + 12))) << std::endl << std::endl;
+  std::cout << "snr = " << snr << std::endl;
+  std::cout << "noise = " << noise << std::endl;
+  std::cout << "rss = " << rss << std::endl;
+  std::cout << "rss_delta = " << rss_delta << std::endl;
+  std::cout << "no abs = " << (10 * (rss_delta + 12)) << std::endl;
+  std::cout << "with abs = " << abs((10 * (rss_delta + 12))) << std::endl << std::endl;
 
   /* Compute BER in lookup table */
   if ((rss_delta < -12.0) || (snr < 0))
