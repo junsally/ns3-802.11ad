@@ -40,11 +40,13 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 1.0;                        /* The distance between transmitter and receiver in meters. */
+  double distance = 0.1;                        /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
+  std::string channelState = "a";
+
 
   /** MCS List **/
   /* SC PHY */
@@ -87,6 +89,7 @@ main(int argc, char *argv[])
   cmd.AddValue ("verbose", "turn on all WifiNetDevice log components", verbose);
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
+  cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -101,6 +104,8 @@ main(int argc, char *argv[])
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (payloadSize));
   Config::SetDefault ("ns3::TcpSocket::SndBufSize", UintegerValue (bufferSize));
   Config::SetDefault ("ns3::TcpSocket::RcvBufSize", UintegerValue (bufferSize));
+  Config::SetDefault ("ns3::MmWavePropagationLossModel::ChannelStates", StringValue (channelState));
+
 
   cout << "MCS" << '\t' << "Throughput (Mbps)" << endl;
 
@@ -130,8 +135,8 @@ main(int argc, char *argv[])
       YansWifiChannelHelper wifiChannel ;
       /* Simple propagation delay model */
       wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
-      /* Friis model with standard-specific wavelength */
-      wifiChannel.AddPropagationLoss ("ns3::FriisPropagationLossModel", "Frequency", DoubleValue (56.16e9));
+      /* mmwave propagation loss model with standard-specific wavelength */
+      wifiChannel.AddPropagationLoss ("ns3::MmWavePropagationLossModel", "Frequency", DoubleValue (73e9));
 
       /**** SETUP ALL NODES ****/
       YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
