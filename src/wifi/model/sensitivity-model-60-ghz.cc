@@ -70,7 +70,7 @@ SensitivityModel60GHz::GetChunkSuccessRate (WifiMode mode, WifiTxVector txVector
   else if (modename == "DMG_MCS1")
       rss_delta = rss - -68;
   else if (modename == "DMG_MCS2")
-      rss_delta = rss - -67;
+      rss_delta = rss - -66;
   else if (modename == "DMG_MCS3")
       rss_delta = rss - -65;
   else if (modename == "DMG_MCS4")
