@@ -11,6 +11,7 @@
 #include "common-functions.h"
 #include <string>
 
+
 /**
  * This script is used to evaluate IEEE 802.11ad Throughput for different PHY Layers.
  * Network topology is simple and consists of One Access Point + One Station.
@@ -40,7 +41,7 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 0.1;                        /* The distance between transmitter and receiver in meters. */
+  double distance = 1;                        /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
@@ -153,7 +154,8 @@ main(int argc, char *argv[])
       wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-79));
       wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-79 + 3));
       /* Set the phy layer error model */
-      wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
+     // wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
+      wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
       /* Set default algorithm for all nodes to be constant rate */
       ostringstream mcs;
       mcs << i;
