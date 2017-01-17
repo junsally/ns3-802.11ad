@@ -46,7 +46,7 @@ ErrorRateModelOFDM::ErrorRateModelOFDM ()
 }
 
 double
-ErrorRateModelOFDM::GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits) const
+ErrorRateModelOFDM::GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits, double CSR)
 {
   NS_ASSERT_MSG(mode.GetModulationClass() == WIFI_MOD_CLASS_DMG_OFDM,
                "Expecting 802.11ad DMG OFDM modulation");
@@ -58,6 +58,7 @@ ErrorRateModelOFDM::GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits)
   double ber;
   int MCS_index;
   int sinrdB_index;
+  double linearK, linearB, linearY;
 
   /**** OFDM PHY ****/
   if (modename == "DMG_MCS15")
@@ -82,7 +83,7 @@ ErrorRateModelOFDM::GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits)
       MCS_index = 9;
 
   else
-      NS_FATAL_ERROR("Not measured for now");
+      return CSR;
 
   std::cout << "sinr = " << sinr << std::endl;
   std::cout << "sinrdB = " << sinrdB << std::endl;
@@ -90,14 +91,17 @@ ErrorRateModelOFDM::GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits)
 
 
   /* Compute BER in lookup table */
-  sinrdB_index = (int) sinrdB - 4;  // lookup table records from 4dB to 28dB
+  sinrdB_index = std::floor(sinrdB) - 4;  // lookup table records from 4dB to 28dB
 
-  if (sinrdB_index < 0)
+  if (sinrdB < 4)
       ber = sinr_ber (MCS_index, 0);
-  else if (sinrdB_index > 24)
+  else if (sinrdB > 28)
       ber = sinr_ber (MCS_index, 24);
   else
-      ber = sinr_ber (MCS_index, sinrdB_index);
+      linearK = log10 (sinr_ber(MCS_index, sinrdB_index)) - log10 (sinr_ber(MCS_index, sinrdB_index + 1));
+      linearB = sinrdB_index * log10 (sinr_ber(MCS_index, sinrdB_index + 1)) - (sinrdB_index + 1) * log10 (sinr_ber(MCS_index, sinrdB_index));
+      linearY = linearK * sinrdB + linearB;
+      ber = pow (10, linearY);
 
   NS_LOG_DEBUG ("ber=" << ber << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", bits=" << nbits);
 

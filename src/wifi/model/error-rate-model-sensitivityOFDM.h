@@ -14,8 +14,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef ERROR_RATE_MODEL_OFDM
-#define ERROR_RATE_MODEL_OFDM
+#ifndef ERROR_RATE_MODEL_SENSITIVITY_OFDM
+#define ERROR_RATE_MODEL_SENSITIVITY_OFDM
 
 #include <stdint.h>
 #include "wifi-mode.h"
@@ -24,16 +24,25 @@
 
 namespace ns3 {
 
-class ErrorRateModelOFDM : public ErrorRateModel
+class ErrorRateModelSensitivityOFDM : public ErrorRateModel
 {
 public:
   static TypeId GetTypeId (void);
 
-  ErrorRateModelOFDM ();
+  ErrorRateModelSensitivityOFDM ();
 
-  virtual double GetCSRAfterLDPC (WifiMode mode, double sinr, uint32_t nbits, double CSR);
+  virtual double GetChunkSuccessRate (WifiMode mode, WifiTxVector txVector, double sinr, uint32_t nbits) const;
+
+
+private:
+  double GetBerFromSensitivityLut (double deltaRSS, const double Sinr);
+  double GetBerFromSinrLut (int MCSindex, const double Sinr);
+
+  double sinrdB;
+  int sinrdB_index;
+  double linearK, linearB, linearY;
 };
 
 } // namespace ns3
 
-#endif /* ERROR_RATE_MODEL_OFDM */
+#endif /* ERROR_RATE_MODEL_SENSITIVITY_OFDM */
