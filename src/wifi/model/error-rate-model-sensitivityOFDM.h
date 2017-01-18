@@ -35,12 +35,9 @@ public:
 
 
 private:
-  double GetBerFromSensitivityLut (double deltaRSS, const double Sinr);
-  double GetBerFromSinrLut (int MCSindex, const double Sinr);
+  double GetBerFromSensitivityLut (double deltaRSS, double Sinr) const;
+  double GetBerFromSinrLut (int MCSindex, double Sinr) const;
 
-  double sinrdB;
-  int sinrdB_index;
-  double linearK, linearB, linearY;
 };
 
 } // namespace ns3

@@ -36,6 +36,7 @@ ErrorRateModelSensitivityOFDM::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::ErrorRateModelSensitivityOFDM")
       .SetParent<ErrorRateModel> ()
+      .SetGroupName ("Wifi")
       .AddConstructor<ErrorRateModelSensitivityOFDM> ()
       ;
   return tid;
@@ -47,33 +48,44 @@ ErrorRateModelSensitivityOFDM::ErrorRateModelSensitivityOFDM ()
 }
 
 double 
-ErrorRateModelSensitivityOFDM::GetBerFromSensitivityLut (double deltaRSS, const double Sinr)
+ErrorRateModelSensitivityOFDM::GetBerFromSensitivityLut (double deltaRSS, double Sinr) const
 {
   if ((deltaRSS < -12.0) || (Sinr < 0))
-       return sensitivity_ber (0);
+{std::cout << "sally test ber function: GetBerFromSensitivityLut - 1st case" << std::endl;
+       return sensitivity_ber (0);}
    
   else if (deltaRSS > 6.0)
-       return sensitivity_ber (180);
+{std::cout << "sally test ber function: GetBerFromSensitivityLut - 2nd case" << std::endl;
+       return sensitivity_ber (180);}
  
   else
-       return sensitivity_ber ((int) std::abs((10 * (rss_delta + 12))));                                                           
+{std::cout << "sally test ber function: GetBerFromSensitivityLut - 3rd case" << std::endl;
+       return sensitivity_ber ((int) std::abs((10 * (deltaRSS + 12))));  }                                                         
 }
 
 double
-ErrorRateModelSensitivityOFDM::GetBerFromSinrLut (int MCSindex, const double Sinr)
+ErrorRateModelSensitivityOFDM::GetBerFromSinrLut (int MCSindex, double Sinr) const
 {
+  double sinrdB;
+  int sinrdB_index;
+  double linearK, linearB, linearY;
+
   sinrdB = 10 * log10 (Sinr); 
   sinrdB_index = std::floor(sinrdB) - 4;  // lookup table records from 4dB to 28dB 
   
   if (sinrdB < 4)
-      return sinr_ber (MCS_index, 0);
+{std::cout << "sally test ber function: GetBerFromSinrLut - 1st case" << std::endl;
+      return sinr_ber (MCSindex, 0);}
   else if (sinrdB > 28)
-      return sinr_ber (MCS_index, 24); 
+{std::cout << "sally test ber function: GetBerFromSinrLut - 2nd case" << std::endl;
+      return sinr_ber (MCSindex, 24);} 
   else
     {
-      linearK = log10 (sinr_ber(MCS_index, sinrdB_index)) - log10 (sinr_ber(MCS_index, sinrdB_index + 1)); 
-      linearB = sinrdB_index * log10 (sinr_ber(MCS_index, sinrdB_index + 1)) - (sinrdB_index + 1) * log10 (sinr_ber(MCS_index, sinrdB_index)); 
+      linearK = log10 (sinr_ber(MCSindex, sinrdB_index)) - log10 (sinr_ber(MCSindex, sinrdB_index + 1)); 
+      linearB = sinrdB_index * log10 (sinr_ber(MCSindex, sinrdB_index + 1)) - (sinrdB_index + 1) * log10 (sinr_ber(MCSindex, sinrdB_index)); 
       linearY = linearK * sinrdB + linearB;     
+
+std::cout << "sally test ber function: GetBerFromSinrLut - 3rd case" << ", linearY=" << linearY << std::endl;
       return pow (10, linearY); 
     }
 }
@@ -248,15 +260,9 @@ ErrorRateModelSensitivityOFDM::GetChunkSuccessRate (WifiMode mode, WifiTxVector 
   else
       NS_FATAL_ERROR("Unrecognized 60 GHz modulation");
 
-  std::cout << "snr = " << snr << std::endl;
-  std::cout << "noise = " << noise << std::endl;
-  std::cout << "rss = " << rss << std::endl;
-  std::cout << "rss_delta = " << rss_delta << std::endl;
-  std::cout << "no abs = " << (10 * (rss_delta + 12)) << std::endl;
-  std::cout << "with abs = " << abs((10 * (rss_delta + 12))) << std::endl << std::endl;
+std::cout << "ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits << "sally test ber result" << std::endl;
 
-
-  NS_LOG_DEBUG ("SENSITIVITY: ber=" << ber << ", rss_delta=" << rss_delta << ", snr=" << snr << ", rss=" << rss << ", bits=" << nbits);
+  NS_LOG_DEBUG ("ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits);
 
   /* Compute PSR from BER */
   return pow (1 - ber, nbits);

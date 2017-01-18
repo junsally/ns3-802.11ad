@@ -316,6 +316,9 @@ InterferenceHelper::CalculateChunkSuccessRate (double snir, Time duration, WifiM
     }
   uint32_t rate = mode.GetPhyRate (txVector);
   uint64_t nbits = (uint64_t)(rate * duration.GetSeconds ());
+
+std::cout << "sally debug nbits: " << "rate = " << rate << "duration = " << duration.GetSeconds() << "nbits = " << nbits << std::endl;
+
   double csr = m_errorRateModel->GetChunkSuccessRate (mode, txVector, snir, (uint32_t)nbits);
   
   std::cout << "csr = " << csr << "  Sally test" << std::endl;

@@ -145,6 +145,9 @@ SensitivityModel60GHz::GetChunkSuccessRate (WifiMode mode, WifiTxVector txVector
 
   NS_LOG_DEBUG ("SENSITIVITY: ber=" << ber << ", rss_delta=" << rss_delta << ", snr=" << snr << ", rss=" << rss << ", bits=" << nbits);
 
+std::cout << "ber = " << ber << std::endl; //sally
+std::cout << "bits = " << nbits << std::endl; //sally
+
   /* Compute PSR from BER */
   return pow (1 - ber, nbits);
 }

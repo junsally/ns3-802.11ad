@@ -6,7 +6,7 @@
 // the rows of sinr_ber_matrix represent MCS15 to MCS24
 // the columns of sinr_ber_matrix represent BER values correspond to SINR range from 4dB to 28dB. 
 
-uint64_t const sinr_ber_matrix[10][25] = {
+double const sinr_ber_matrix[10][25] = {
 	{ 0.18346, 0.137378, 0.066034, 0.0074437, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	{ 0.176097, 0.137286, 0.078501, 0.045411, 0.0061002, 0.00091065, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	{ 1, 1, 0.087819, 0.065349, 0.031792, 0.0059155, 0.00011871, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
