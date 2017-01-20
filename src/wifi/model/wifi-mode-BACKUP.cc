@@ -228,28 +228,6 @@ std::cout << "sally test datarate(case3): " << dataRate << " symbolRate: " << sy
 std::cout << "sally test datarate(case4): " << dataRate << " symbolRate: " << symbolRate << " usableSubCarriers: " << usableSubCarriers << "numberOfBitsPerSubcarrier: " << numberOfBitsPerSubcarrier << "codingRate: " << codingRate << std::endl;
 
     }
-
-  else if (item->modClass == WIFI_MOD_CLASS_DMG_CTRL)
-    {
-      dataRate = 27500000;
-    }
-
-  else if (item->modClass == WIFI_MOD_CLASS_DMG_SC)
-    {
-
-    }
-
-  else if (item->modClass == WIFI_MOD_CLASS_DMG_OFDM)
-    {
-
-    }
-
-  else if (item->modClass == WIFI_MOD_CLASS_DMG_LP_SC)
-    {
-
-    }
-
-
   else
     {
       NS_ASSERT ("undefined datarate for the modulation class!");
