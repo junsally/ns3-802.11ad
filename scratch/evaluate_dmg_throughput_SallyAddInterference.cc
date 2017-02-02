@@ -10,6 +10,8 @@
 #include "ns3/wifi-module.h"
 #include "common-functions.h"
 #include <string>
+#include <stdlib.h>
+#include <cmath>
 
 
 /**
@@ -30,6 +32,7 @@ using namespace std;
 
 Ptr<Node> apWifiNode;
 Ptr<Node> staWifiNode;
+Ptr<Node> intfWifiNode;
 
 int
 main(int argc, char *argv[])
@@ -41,12 +44,13 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 1;                        /* The distance between transmitter and receiver in meters. */
+  double distance = 1;                          /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
-  std::string channelState = "a";
+  std::string channelState = "a";               /* channel state for propagation loss model, can be n, l, o and a */
+  double theta = 90;                            /* the angle to x axis for interference station in x-y plane */
 
 
   /** MCS List **/
@@ -91,6 +95,7 @@ main(int argc, char *argv[])
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
+  cmd.AddValue ("theta", "the angle of interference station to x axis in x-y plane, range from 0 to 180", theta);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -171,9 +176,10 @@ main(int argc, char *argv[])
 
       /* Make two nodes and set them up with the phy and the mac */
       NodeContainer wifiNodes;
-      wifiNodes.Create (2);
+      wifiNodes.Create (3);
       apWifiNode = wifiNodes.Get (0);
       staWifiNode = wifiNodes.Get (1);
+      intfWifiNode = wifiNodes.Get (2);
 
       /**** Allocate a default Adhoc Wifi MAC ****/
       /* Add a DMG upper mac */
@@ -201,13 +207,25 @@ main(int argc, char *argv[])
                        "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
 
       NetDeviceContainer staDevice;
-      staDevice = wifi.Install (wifiPhy, wifiMac, staWifiNode);
+      staDevice = wifi.Install (wifiPhy, wifiMac, NodeContainer (staWifiNode, intfWifiNode));
+
+/*      wifiMac.SetType ("ns3::DmgStaWifiMac",
+                       "Ssid", SsidValue (ssid),
+                       "ActiveProbing", BooleanValue (false),
+                       "BE_MaxAmpduSize", UintegerValue (262143), //Enable A-MPDU with the highest maximum size allowed by the standard
+                       "BE_MaxAmsduSize", UintegerValue (7935),
+                       "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
+
+      NetDeviceContainer intfDevice;
+      intfDevice = wifi.Install (wifiPhy, wifiMac, intfWifiNode);
+*/
 
       /* Setting mobility model, Initial Position 1 meter apart */
       MobilityHelper mobility;
       Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
-      positionAlloc->Add (Vector (0.0, 0.0, 0.0));
-      positionAlloc->Add (Vector (distance, 0.0, 0.0));
+      positionAlloc->Add (Vector (0.0, 0.0, 0.0)); // position for PCP/AP
+      positionAlloc->Add (Vector (distance, 0.0, 0.0)); // position for staWifiNode
+      positionAlloc->Add (Vector (distance*cos(theta*M_PI/180), distance*sin(theta*M_PI/180), 0.0)); // position for intfWifiNode
 
       mobility.SetPositionAllocator (positionAlloc);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -223,7 +241,9 @@ main(int argc, char *argv[])
       apInterface = address.Assign (apDevice);
       Ipv4InterfaceContainer staInterface;
       staInterface = address.Assign (staDevice);
-
+/*      Ipv4InterfaceContainer intfInterface;
+      intfInterface = address.Assign (intfDevice);
+*/
       /* Populate routing table */
       Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
@@ -248,15 +268,38 @@ main(int argc, char *argv[])
           src.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
           src.SetAttribute ("DataRate", DataRateValue (DataRate (*iter)));
 
-          srcApp = src.Install (staWifiNode);
+          srcApp = src.Install (NodeContainer (staWifiNode, intfWifiNode));
         }
       else if (applicationType == "bulk")
         {
           BulkSendHelper src (socketType, dest);
-          srcApp= src.Install (staWifiNode);
+          srcApp= src.Install (NodeContainer (staWifiNode, intfWifiNode));
         }
 
       srcApp.Start (Seconds (1.0));
+
+      /* Install TCP/UDP Transmitter interference on the station */
+/*      Address destintf (InetSocketAddress (apInterface.GetAddress (0), 9999));
+      ApplicationContainer intfApp;
+      if (applicationType == "onoff")
+        {
+          OnOffHelper intf (socketType, destintf);
+          intf.SetAttribute ("MaxBytes", UintegerValue (0));
+          intf.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+          intf.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+          intf.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+          intf.SetAttribute ("DataRate", DataRateValue (DataRate (*iter)));
+
+          intfApp = intf.Install (intfWifiNode);
+        }
+      else if (applicationType == "bulk")
+        {
+          BulkSendHelper intf (socketType, destintf);
+          intfApp= intf.Install (intfWifiNode);
+        }
+
+      intfApp.Start (Seconds (1.0));
+*/
 
       if (pcapTracing)
         {
