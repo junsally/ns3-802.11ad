@@ -280,7 +280,7 @@ InterferenceHelper::CalculateSnr (double signal, double noiseInterference, uint3
   double snr = signal / noise; //linear scale
   NS_LOG_DEBUG ("bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr);
 
-  std::cout << "bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr << "  Sally test" << std::endl;
+  std::cout << "bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr << "  Sally test interference model " << std::endl;
 
   return snr;
 }
@@ -314,7 +314,7 @@ InterferenceHelper::CalculateChunkSuccessRate (double snir, Time duration, WifiM
     {
       return 1.0;
     }
-  uint32_t rate = mode.GetPhyRate (txVector);
+  uint64_t rate = mode.GetPhyRate (txVector);
   uint64_t nbits = (uint64_t)(rate * duration.GetSeconds ());
 
 std::cout << "sally debug nbits: " << "rate = " << rate << "duration = " << duration.GetSeconds() << "nbits = " << nbits << std::endl;

@@ -54,6 +54,10 @@ SensitivityModel60GHz::GetChunkSuccessRate (WifiMode mode, WifiTxVector txVector
                "Expecting 802.11ad DMG CTRL, SC or OFDM modulation");
   std::string modename = mode.GetUniqueName ();
 
+
+std::cout << "sally test modename in sensitivity 60 ghz model: " << modename << std::endl;
+
+
   /* This is kinda silly, but convert from SNR back to RSS (Hardcoding RxNoiseFigure)*/
   double noise = 1.3803e-23 * 290.0 * txVector.GetChannelWidth () * 10;
 

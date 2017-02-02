@@ -76,7 +76,7 @@ WifiMode::GetPhyRate (uint32_t channelWidth, bool isShortGuardInterval, uint8_t 
   //TODO: nss > 4 not supported yet
   NS_ASSERT (nss <= 4);
 std::cout << "sally debug GetPhyRate: " << "channelWidth=" << channelWidth << " isShortGuardInterval=" << isShortGuardInterval << " nss=" << nss << std::endl;
-  uint32_t dataRate, phyRate;
+  uint64_t dataRate, phyRate;
   dataRate = GetDataRate (channelWidth, isShortGuardInterval, nss);
 std::cout << "sally debug GetPhyRate: " << "dataRate= " << dataRate << std::endl;
   switch (GetCodeRate ())
@@ -119,6 +119,8 @@ WifiMode::GetDataRate (uint32_t channelWidth, bool isShortGuardInterval, uint8_t
   double symbolRate = 0;
   double codingRate = 0;
   uint32_t numberOfBitsPerSubcarrier = log2 (GetConstellationSize ());
+//  std::string modename = mode.GetUniqueName ();
+
   if (item->modClass == WIFI_MOD_CLASS_DSSS)
     {
       dataRate = ((11000000 / 11) * numberOfBitsPerSubcarrier);
@@ -236,17 +238,48 @@ std::cout << "sally test datarate(case4): " << dataRate << " symbolRate: " << sy
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_SC)
     {
-
+/*      if (modename == "DMG_MCS1") dataRate = 385000000;
+      else if (modename == "DMG_MCS2") dataRate = 770000000;
+      else if (modename == "DMG_MCS3") dataRate = 962500000;
+      else if (modename == "DMG_MCS4") dataRate = 1155000000;
+      else if (modename == "DMG_MCS5") dataRate = 1251250000;
+      else if (modename == "DMG_MCS6") dataRate = 1540000000;
+      else if (modename == "DMG_MCS7") dataRate = 1925000000;
+      else if (modename == "DMG_MCS8") dataRate = 2310000000;
+      else if (modename == "DMG_MCS9") dataRate = 2502500000;
+      else if (modename == "DMG_MCS10") dataRate = 3080000000;
+      else if (modename == "DMG_MCS11") dataRate = 3850000000;
+      else if (modename == "DMG_MCS12") dataRate = 4620000000; */
+      dataRate = 385000000;
     }
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_OFDM)
     {
-
+/*      if (modename == "DMG_MCS13") dataRate = 693000000;
+      else if (modename == "DMG_MCS14") dataRate = 866250000;
+      else if (modename == "DMG_MCS15") dataRate = 1386000000;
+      else if (modename == "DMG_MCS16") dataRate = 1732500000;
+      else if (modename == "DMG_MCS17") dataRate = 2079000000;
+      else if (modename == "DMG_MCS18") dataRate = 2772000000;
+      else if (modename == "DMG_MCS19") dataRate = 3465000000;
+      else if (modename == "DMG_MCS20") dataRate = 4158000000;
+      else if (modename == "DMG_MCS21") dataRate = 4504500000;
+      else if (modename == "DMG_MCS22") dataRate = 5197500000;
+      else if (modename == "DMG_MCS23") dataRate = 6237000000;
+      else if (modename == "DMG_MCS24") dataRate = 6756750000; */
+      dataRate = 6756750000;
     }
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_LP_SC)
     {
-
+/*      if (modename == "DMG_MCS25") dataRate = 626000000;
+      else if (modename == "DMG_MCS26") dataRate = 834000000;
+      else if (modename == "DMG_MCS27") dataRate = 1112000000;
+      else if (modename == "DMG_MCS28") dataRate = 1251000000;
+      else if (modename == "DMG_MCS29") dataRate = 1668000000;
+      else if (modename == "DMG_MCS30") dataRate = 2224000000;
+      else if (modename == "DMG_MCS31") dataRate = 2503000000; */
+      dataRate = 626000000;
     }
 
 

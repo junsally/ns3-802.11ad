@@ -100,8 +100,10 @@ ErrorRateModelSensitivityOFDM::GetChunkSuccessRate (WifiMode mode, WifiTxVector 
                "Expecting 802.11ad DMG CTRL, SC or OFDM modulation");
   std::string modename = mode.GetUniqueName ();
 
+std::cout << "modename before selection of ber calculation by sally: " << modename << std::endl;
+
   /* This is kinda silly, but convert from SNR back to RSS (Hardcoding RxNoiseFigure)*/
-  double noise = 1.3803e-23 * 290.0 * txVector.GetChannelWidth () * 10;
+  double noise = 1.3803e-23 * 290.0 * txVector.GetChannelWidth () * 1000000;
 
   /* Compute RSS in dBm, so add 30 from SNR */
   double rss = 10 * log10 (sinr * noise) + 30;
@@ -260,7 +262,7 @@ ErrorRateModelSensitivityOFDM::GetChunkSuccessRate (WifiMode mode, WifiTxVector 
   else
       NS_FATAL_ERROR("Unrecognized 60 GHz modulation");
 
-std::cout << "ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits << "sally test ber result" << std::endl;
+std::cout << "ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits << "sally test ber result in error rate model" << std::endl;
 
   NS_LOG_DEBUG ("ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits);
 

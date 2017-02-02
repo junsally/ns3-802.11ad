@@ -1,5 +1,8 @@
 #include "sensitivity-lut.h"
 #include <stdint.h>
+#include <iostream>
+using namespace std;
+
 
 uint64_t sensitivity_matrix[181][2] = {
 	{ 0xc028000000000000ULL, 0x3fbadf3c2af7ead5ULL, },
@@ -190,6 +193,9 @@ namespace ns3 {
 double sensitivity_ber(unsigned int index)
 {
     double (*sensitivity_lut)[2] = (double (*)[2])sensitivity_matrix;
+
+std::cout << "sally test result in sensitivity lut: " << sensitivity_lut[index][1] << "  index: " << index << std::endl;
+
     return sensitivity_lut[index][1];
 }
 

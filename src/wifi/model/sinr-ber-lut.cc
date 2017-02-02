@@ -1,6 +1,7 @@
 #include "sinr-ber-lut.h"
 #include <stdint.h>
-
+#include <iostream>
+using namespace std;
 
 // sinr_ber_matrix represents the relationship between ber and sinr after LDPC.
 // the rows of sinr_ber_matrix represent MCS15 to MCS24
@@ -23,6 +24,8 @@ namespace ns3 {
 
 double sinr_ber(unsigned int index1, unsigned int index2)
 {
+
+std::cout << "sally test result in sinr ber lut: " << sinr_ber_matrix[index1][index2] << "  index1: " << index1 << "  index2: " << index2 << std::endl;
     return sinr_ber_matrix[index1][index2];
 }
 
