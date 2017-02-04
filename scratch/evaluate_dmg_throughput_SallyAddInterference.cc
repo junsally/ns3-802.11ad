@@ -50,7 +50,7 @@ main(int argc, char *argv[])
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
   std::string channelState = "a";               /* channel state for propagation loss model, can be n, l, o and a */
-  double theta = 90;                            /* the angle to x axis for interference station in x-y plane */
+  double theta = 20;                            /* the angle to x axis for interference station in x-y plane */
 
 
   /** MCS List **/
@@ -227,6 +227,8 @@ main(int argc, char *argv[])
       positionAlloc->Add (Vector (distance, 0.0, 0.0)); // position for staWifiNode
       positionAlloc->Add (Vector (distance*cos(theta*M_PI/180), distance*sin(theta*M_PI/180), 0.0)); // position for intfWifiNode
 
+std::cout << "sally test position for interferer: " << "x=" << distance*cos(theta*M_PI/180) << ", y=" << distance*sin(theta*M_PI/180) << std::endl;
+
       mobility.SetPositionAllocator (positionAlloc);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
       mobility.Install (wifiNodes);
@@ -250,6 +252,31 @@ main(int argc, char *argv[])
       /* We do not want any ARP packets */
       PopulateArpCache ();
 
+
+
+
+/*  TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
+  Ptr<Socket> recvSink = Socket::CreateSocket (c.Get (0), tid);
+  InetSocketAddress local = InetSocketAddress (Ipv4Address ("10.1.1.1"), 80);
+  recvSink->Bind (local);
+  recvSink->SetRecvCallback (MakeCallback (&ReceivePacket));
+
+  Ptr<Socket> source = Socket::CreateSocket (c.Get (1), tid);
+  InetSocketAddress remote = InetSocketAddress (Ipv4Address ("255.255.255.255"), 80);
+  source->SetAllowBroadcast (true);
+  source->Connect (remote);
+
+  // Interferer will send to a different port; we will not see a
+  // "Received packet" message
+  Ptr<Socket> interferer = Socket::CreateSocket (c.Get (2), tid);
+  InetSocketAddress interferingAddr = InetSocketAddress (Ipv4Address ("255.255.255.255"), 49000);
+  interferer->SetAllowBroadcast (true);
+  interferer->Connect (interferingAddr);
+
+*/
+
+
+
       /* Install Simple UDP Server on the access point */
       PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
       ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
@@ -268,18 +295,18 @@ main(int argc, char *argv[])
           src.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
           src.SetAttribute ("DataRate", DataRateValue (DataRate (*iter)));
 
-          srcApp = src.Install (NodeContainer (staWifiNode, intfWifiNode));
+          srcApp = src.Install (NodeContainer(staWifiNode, intfWifiNode));
         }
       else if (applicationType == "bulk")
         {
           BulkSendHelper src (socketType, dest);
-          srcApp= src.Install (NodeContainer (staWifiNode, intfWifiNode));
+          srcApp = src.Install (NodeContainer(staWifiNode, intfWifiNode));
         }
 
       srcApp.Start (Seconds (1.0));
 
       /* Install TCP/UDP Transmitter interference on the station */
-/*      Address destintf (InetSocketAddress (apInterface.GetAddress (0), 9999));
+/*      Address destintf (InetSocketAddress (apInterface.GetAddress (0), 9000));
       ApplicationContainer intfApp;
       if (applicationType == "onoff")
         {
@@ -299,8 +326,8 @@ main(int argc, char *argv[])
         }
 
       intfApp.Start (Seconds (1.0));
-*/
 
+*/
       if (pcapTracing)
         {
           wifiPhy.SetPcapDataLinkType (YansWifiPhyHelper::DLT_IEEE802_11_RADIO);
