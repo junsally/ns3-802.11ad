@@ -50,7 +50,7 @@ main(int argc, char *argv[])
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
   std::string channelState = "a";               /* channel state for propagation loss model, can be n, l, o and a */
-  double theta = 20;                            /* the angle to x axis for interference station in x-y plane */
+  double theta = 90;                            /* the angle to x axis for interference station in x-y plane */
 
 
   /** MCS List **/
@@ -206,8 +206,10 @@ main(int argc, char *argv[])
                        "BE_MaxAmsduSize", UintegerValue (7935),
                        "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
 
-      NetDeviceContainer staDevice;
-      staDevice = wifi.Install (wifiPhy, wifiMac, NodeContainer (staWifiNode, intfWifiNode));
+      NetDeviceContainer staDevices;
+//      staDevice = wifi.Install (wifiPhy, wifiMac, NodeContainer (staWifiNode, intfWifiNode));
+      staDevices.Add (wifi.Install (wifiPhy, wifiMac, staWifiNode));
+      staDevices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
 
 /*      wifiMac.SetType ("ns3::DmgStaWifiMac",
                        "Ssid", SsidValue (ssid),
@@ -242,7 +244,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
       Ipv4InterfaceContainer apInterface;
       apInterface = address.Assign (apDevice);
       Ipv4InterfaceContainer staInterface;
-      staInterface = address.Assign (staDevice);
+      staInterface = address.Assign (staDevices);
 /*      Ipv4InterfaceContainer intfInterface;
       intfInterface = address.Assign (intfDevice);
 */
@@ -279,6 +281,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
       /* Install Simple UDP Server on the access point */
       PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
+//      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (apInterface.GetAddress (0), 9999));
       ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
       Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApp.Get (0));
       sinkApp.Start (Seconds (0.0));
@@ -332,7 +335,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
         {
           wifiPhy.SetPcapDataLinkType (YansWifiPhyHelper::DLT_IEEE802_11_RADIO);
           wifiPhy.EnablePcap ("Traces/AccessPoint" + mcs.str (), apDevice, false);
-          wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevice, false);
+          wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevices, false);
         }
 
       Simulator::Stop (Seconds (simulationTime));

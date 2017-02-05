@@ -119,7 +119,7 @@ main(int argc, char *argv[])
    for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
     {
   
-     if ((i != 1) && (i != 24)) continue; //Sally add
+     if (i != 1) continue; //Sally add
 
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
