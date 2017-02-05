@@ -262,7 +262,7 @@ std::cout << "modename before selection of ber calculation by sally: " << modena
   else
       NS_FATAL_ERROR("Unrecognized 60 GHz modulation");
 
-std::cout << "ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits << "sally test ber result in error rate model" << std::endl;
+std::cout << "ber=" << ber << ", rss_delta=" << rss_delta << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits << "sally test ber result in error rate model" << std::endl;
 
   NS_LOG_DEBUG ("ber=" << ber << ", rss_delta=" << rss_delta << ", MCS_index=" << MCS_index << ", sinr=" << sinr << ", rss=" << rss << ", bits=" << nbits);
 

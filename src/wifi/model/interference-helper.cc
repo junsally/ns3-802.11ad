@@ -163,6 +163,8 @@ InterferenceHelper::Add (uint32_t size, WifiTxVector txVector,
                          enum WifiPreamble preamble,
                          Time duration, double rxPowerW)
 {
+
+std::cout << "sally test add mode: " << "size=" << size << ", time duration=" << duration << ", rxPowerW=" << rxPowerW << std::endl;
   Ptr<InterferenceHelper::Event> event;
 
   event = Create<InterferenceHelper::Event> (size,
@@ -177,6 +179,8 @@ InterferenceHelper::Add (uint32_t size, WifiTxVector txVector,
 void
 InterferenceHelper::AddForeignSignal (Time duration, double rxPowerW)
 {
+std::cout << "sally test addforeignsignal: " << "duration=" << duration << ", rxpowerw=" << rxPowerW << std::endl;
+
   // Parameters other than duration and rxPowerW are unused for this type
   // of signal, so we provide dummy versions
   WifiTxVector fakeTxVector;
@@ -186,6 +190,9 @@ InterferenceHelper::AddForeignSignal (Time duration, double rxPowerW)
 Ptr<InterferenceHelper::Event>
 InterferenceHelper::Add (WifiTxVector txVector, Time duration, double rxPowerW)
 {
+
+std::cout << "sally test add mode2: " << "time duration=" << duration << ", rxPowerW=" << rxPowerW << std::endl;
+
   Ptr<InterferenceHelper::Event> event;
 
   event = Create<InterferenceHelper::Event> (txVector,
@@ -227,9 +234,15 @@ InterferenceHelper::GetEnergyDuration (double energyW)
   double noiseInterferenceW = 0.0;
   Time end = now;
   noiseInterferenceW = m_firstPower;
+std::cout << "sally test noiseInterference1: " << noiseInterferenceW << " energyW: " << energyW << std::endl;
+
+  int sally2 = 0;
   for (NiChanges::const_iterator i = m_niChanges.begin (); i != m_niChanges.end (); i++)
     {
+      sally2++;
+std::cout << "sally test noiseInterference2: " << noiseInterferenceW << " get delta:" << i->GetDelta() << " sally2 value: " << sally2 << std::endl;
       noiseInterferenceW += i->GetDelta ();
+ 
       end = i->GetTime ();
       if (end < now)
         {
@@ -250,16 +263,22 @@ InterferenceHelper::AppendEvent (Ptr<InterferenceHelper::Event> event)
   Time now = Simulator::Now ();
   if (!m_rxing)
     {
+std::cout << "sally test time in appendevent" << " time now=" << now << std::endl;
       NiChanges::iterator nowIterator = GetPosition (now);
+      int sally1 = 0;
       for (NiChanges::iterator i = m_niChanges.begin (); i != nowIterator; i++)
         {
+          sally1++;
+std::cout << "sally test m_firstPower1: " << m_firstPower << " deltavalue: " << i->GetDelta() << " sally1 value: " << sally1 << std::endl;
           m_firstPower += i->GetDelta ();
+
         }
       m_niChanges.erase (m_niChanges.begin (), nowIterator);
       m_niChanges.insert (m_niChanges.begin (), NiChange (event->GetStartTime (), event->GetRxPowerW ()));
     }
   else
     {
+std::cout << "sally test AppendEvent in rx state" << std::endl;
       AddNiChangeEvent (NiChange (event->GetStartTime (), event->GetRxPowerW ()));
     }
   AddNiChangeEvent (NiChange (event->GetEndTime (), -event->GetRxPowerW ()));
@@ -280,7 +299,7 @@ InterferenceHelper::CalculateSnr (double signal, double noiseInterference, uint3
   double snr = signal / noise; //linear scale
   NS_LOG_DEBUG ("bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr);
 
-  std::cout << "bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr << "  Sally test interference model " << std::endl;
+  std::cout << "bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", noise figure=" << m_noiseFigure << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr << "  sally test interference model " << std::endl;
 
   return snr;
 }
@@ -290,9 +309,12 @@ InterferenceHelper::CalculateNoiseInterferenceW (Ptr<InterferenceHelper::Event> 
 {
   NS_LOG_FUNCTION (this << event << ni);
   double noiseInterference = m_firstPower;
+std::cout << "sally test noiseInterference3: " << noiseInterference << " m_firstPower2: " << m_firstPower << std::endl;
+
   NS_ASSERT (m_rxing);
   for (NiChanges::const_iterator i = m_niChanges.begin () + 1; i != m_niChanges.end (); i++)
     {
+std::cout << "sally test in CalculateNoiseInterferenceW: " << "event->getEndTime=" << event->GetEndTime() << ", i->getTime=" << i->GetTime() <<", event->GetRxPowerW=" << event->GetRxPowerW() << ", i->GetDelta=" << i->GetDelta() << std::endl; 
       if ((event->GetEndTime () == i->GetTime ()) && event->GetRxPowerW () == -i->GetDelta ())
         {
           break;
@@ -302,7 +324,7 @@ InterferenceHelper::CalculateNoiseInterferenceW (Ptr<InterferenceHelper::Event> 
   ni->insert (ni->begin (), NiChange (event->GetStartTime (), noiseInterference));
   ni->push_back (NiChange (event->GetEndTime (), 0));
 
-  std::cout << "noise interference = " << noiseInterference << "  Sally test" << std::endl;
+  std::cout << "noise interference = " << noiseInterference << "  sally test 4" << std::endl;
 
   return noiseInterference;
 }
@@ -321,7 +343,7 @@ std::cout << "sally debug nbits: " << "rate = " << rate << "duration = " << dura
 
   double csr = m_errorRateModel->GetChunkSuccessRate (mode, txVector, snir, (uint32_t)nbits);
   
-  std::cout << "csr = " << csr << "  Sally test" << std::endl;
+  std::cout << "csr = " << csr << "  sally test" << std::endl;
 
   return csr;
 }
@@ -340,7 +362,11 @@ InterferenceHelper::CalculatePlcpPayloadPer (Ptr<const InterferenceHelper::Event
   Time plcpHtTrainingSymbolsStart = plcpHsigHeaderStart + WifiPhy::GetPlcpHtSigHeaderDuration (preamble) + WifiPhy::GetPlcpVhtSigA1Duration (preamble) + WifiPhy::GetPlcpVhtSigA2Duration (preamble); //packet start time + preamble + L-SIG + HT-SIG or VHT-SIG-A (A1 + A2)
   Time plcpPayloadStart = plcpHtTrainingSymbolsStart + WifiPhy::GetPlcpHtTrainingSymbolDuration (preamble, event->GetTxVector ()) + WifiPhy::GetPlcpVhtSigBDuration (preamble); //packet start time + preamble + L-SIG + HT-SIG or VHT-SIG-A (A1 + A2) + (V)HT Training + VHT-SIG-B
   double noiseInterferenceW = (*j).GetDelta ();
+std::cout << "sally test noiseInterference5: " << noiseInterferenceW << std::endl;
+
   double powerW = event->GetRxPowerW ();
+std::cout << "sally test rxpower: " << powerW << std::endl;
+
   j++;
   while (ni->end () != j)
     {
@@ -357,6 +383,7 @@ InterferenceHelper::CalculatePlcpPayloadPer (Ptr<const InterferenceHelper::Event
                                             payloadMode, event->GetTxVector ());
 
           NS_LOG_DEBUG ("Both previous and current point to the payload: mode=" << payloadMode << ", psr=" << psr);
+std::cout << "sally test calculateplcppayloadper cases:  " << "Both previous and current point to the payload: mode=" << payloadMode << ", psr=" << psr << std::endl;
         }
       //Case 2: previous is before payload and current is in the payload
       else if (current >= plcpPayloadStart)
@@ -367,9 +394,12 @@ InterferenceHelper::CalculatePlcpPayloadPer (Ptr<const InterferenceHelper::Event
                                             current - plcpPayloadStart,
                                             payloadMode, event->GetTxVector ());
           NS_LOG_DEBUG ("previous is before payload and current is in the payload: mode=" << payloadMode << ", psr=" << psr);
+std::cout << "sally test calculateplcppayloadper cases:  " << "previous is before payload and current is in the payload: mode=" << payloadMode << ", psr=" << psr << std::endl;
         }
-
+std::cout << "sally test noiseInterference6: " << noiseInterferenceW << " delta value: " << (*j).GetDelta() << std::endl;
       noiseInterferenceW += (*j).GetDelta ();
+
+
       previous = (*j).GetTime ();
       j++;
     }
@@ -404,18 +434,23 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
   Time plcpHtTrainingSymbolsStart = plcpHsigHeaderStart + WifiPhy::GetPlcpHtSigHeaderDuration (preamble) + WifiPhy::GetPlcpVhtSigA1Duration (preamble) + WifiPhy::GetPlcpVhtSigA2Duration (preamble); //packet start time + preamble + L-SIG + HT-SIG or VHT-SIG-A (A1 + A2)
   Time plcpPayloadStart = plcpHtTrainingSymbolsStart + WifiPhy::GetPlcpHtTrainingSymbolDuration (preamble, event->GetTxVector ()) + WifiPhy::GetPlcpVhtSigBDuration (preamble); //packet start time + preamble + L-SIG + HT-SIG or VHT-SIG-A (A1 + A2) + (V)HT Training + VHT-SIG-B
   double noiseInterferenceW = (*j).GetDelta ();
+std::cout << "sally test noiseInterference7: " << noiseInterferenceW << std::endl;
+
   double powerW = event->GetRxPowerW ();
   j++;
   while (ni->end () != j)
     {
       Time current = (*j).GetTime ();
       NS_LOG_DEBUG ("previous= " << previous << ", current=" << current);
+std::cout << "sally test calculateplcpheaderper  " << "previous= " << previous << ", current=" << current << std::endl;
+
       NS_ASSERT (current >= previous);
       //Case 1: previous and current after playload start: nothing to do
       if (previous >= plcpPayloadStart)
         {
           psr *= 1;
           NS_LOG_DEBUG ("Case 1 - previous and current after playload start: nothing to do");
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 1 - previous and current after playload start: nothing to do" << std::endl;
         }
       //Case 2: previous is in (V)HT training or in VHT-SIG-B: Non (V)HT will not enter here since it didn't enter in the last two and they are all the same for non (V)HT
       else if (previous >= plcpHtTrainingSymbolsStart)
@@ -431,6 +466,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                 htHeaderMode, event->GetTxVector ());
 
               NS_LOG_DEBUG ("Case 2a - previous is in (V)HT training or in VHT-SIG-B and current after payload start: mode=" << htHeaderMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 2a - previous is in (V)HT training or in VHT-SIG-B and current after payload start: mode=" << htHeaderMode << ", psr=" << psr << std::endl;
             }
           //Case 2b: current is in (V)HT training or in VHT-SIG-B
           else
@@ -442,6 +478,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                 htHeaderMode, event->GetTxVector ());
 
               NS_LOG_DEBUG ("Case 2b - previous is in (V)HT training or in VHT-SIG-B and current is in (V)HT training or in VHT-SIG-B: mode=" << htHeaderMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 2b - previous is in (V)HT training or in VHT-SIG-B and current is in (V)HT training or in VHT-SIG-B: mode=" << htHeaderMode << ", psr=" << psr << std::endl;
             }
         }
       //Case 3: previous is in HT-SIG or VHT-SIG-A: Non (V)HT will not enter here since it didn't enter in the last two and they are all the same for non (V)HT
@@ -468,6 +505,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3ai - previous is in VHT-SIG-A and current after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3ai - previous is in VHT-SIG-A and current after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 3aii: HT mixed format or HT greenfield
               else
@@ -479,6 +517,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     htHeaderMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3aii - previous is in HT-SIG and current after payload start: mode=" << htHeaderMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3aii - previous is in HT-SIG and current after payload start: mode=" << htHeaderMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 3b: current is in (V)HT training or in VHT-SIG-B
@@ -501,6 +540,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3bi - previous is in VHT-SIG-A and current is in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3bi - previous is in VHT-SIG-A and current is in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 3bii: HT mixed format or HT greenfield
               else
@@ -512,6 +552,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     htHeaderMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3bii - previous is in HT-SIG and current is in HT training: mode=" << htHeaderMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3bii - previous is in HT-SIG and current is in HT training: mode=" << htHeaderMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 3c: current with previous in HT-SIG or VHT-SIG-A
@@ -528,6 +569,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3ci - previous with current in VHT-SIG-A: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3ci - previous with current in VHT-SIG-A: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 3bii: HT mixed format or HT greenfield
               else
@@ -539,6 +581,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     htHeaderMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 3cii - previous with current in HT-SIG: mode=" << htHeaderMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3cii - previous with current in HT-SIG: mode=" << htHeaderMode << ", psr=" << psr << std::endl;
                 }
             }
         }
@@ -559,6 +602,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4ai - previous in L-SIG and current after payload start: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4ai - previous in L-SIG and current after payload start: mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 4aii: VHT format
               else if (preamble == WIFI_PREAMBLE_VHT)
@@ -576,6 +620,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4aii - previous is in L-SIG and current after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4aii - previous is in L-SIG and current after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 4aiii: HT mixed format
               else
@@ -593,6 +638,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4aiii - previous in L-SIG and current after payload start: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4aiii - previous in L-SIG and current after payload start: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 4b: current is in (V)HT training or in VHT-SIG-B. Non (V)HT will not come here since it went in previous if or if the previous if is not true this will be not true
@@ -616,6 +662,8 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4bi - previous is in L-SIG and current in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4bi - previous is in L-SIG and current in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
+
                 }
               //Case 4bii: HT mixed format
               else
@@ -633,6 +681,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4bii - previous in L-SIG and current in HT training: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4bii - previous in L-SIG and current in HT training: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 4c: current in HT-SIG or in VHT-SIG-A. Non (V)HT will not come here since it went in previous if or if the previous if is not true this will be not true
@@ -650,6 +699,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4ci - previous is in L-SIG and current in VHT-SIG-A: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4ci - previous is in L-SIG and current in VHT-SIG-A: mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 4cii: HT mixed format
               else
@@ -667,6 +717,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 4cii - previous in L-SIG and current in HT-SIG: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 4cii - previous in L-SIG and current in HT-SIG: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 4d: current with previous in L-SIG
@@ -679,6 +730,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                 headerMode, event->GetTxVector ());
 
               NS_LOG_DEBUG ("Case 3c - current with previous in L-SIG: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 3c - current with previous in L-SIG: mode=" << headerMode << ", psr=" << psr << std::endl;
             }
         }
       //Case 5: previous is in the preamble works for all cases
@@ -697,6 +749,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5a - previous is in the preamble and current is after payload start: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5a - previous is in the preamble and current is after payload start: mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 5aii: VHT format
               else if (preamble == WIFI_PREAMBLE_VHT)
@@ -714,6 +767,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5aii - previous is in the preamble and current is after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5aii - previous is in the preamble and current is after payload start: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
 
               //Case 5aiii: HT format
@@ -732,6 +786,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5aiii - previous is in the preamble and current is after payload start: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5aiii - previous is in the preamble and current is after payload start: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 5b: current is in (V)HT training or in VHT-SIG-B. Non (V)HT will not come here since it went in previous if or if the previous if is not true this will be not true
@@ -755,6 +810,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5bi - previous is in the preamble and current in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5bi - previous is in the preamble and current in VHT training or in VHT-SIG-B: VHT mode=" << htHeaderMode << ", non-VHT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 45ii: HT mixed format
               else
@@ -772,6 +828,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5bii - previous is in the preamble and current in HT training: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5bii - previous is in the preamble and current in HT training: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 5c: current in HT-SIG or in VHT-SIG-A. Non (V)HT will not come here since it went in previous if or if the previous if is not true this will be not true
@@ -789,6 +846,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5ci - previous is in preamble and current in VHT-SIG-A: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5ci - previous is in preamble and current in VHT-SIG-A: mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
               //Case 5cii: HT mixed format
               else
@@ -806,6 +864,7 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                     headerMode, event->GetTxVector ());
 
                   NS_LOG_DEBUG ("Case 5cii - previous in preamble and current in HT-SIG: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5cii - previous in preamble and current in HT-SIG: HT mode=" << htHeaderMode << ", non-HT mode=" << headerMode << ", psr=" << psr << std::endl;
                 }
             }
           //Case 5d: current is in L-SIG. HT GF will not come here
@@ -820,10 +879,12 @@ InterferenceHelper::CalculatePlcpHeaderPer (Ptr<const InterferenceHelper::Event>
                                                 headerMode, event->GetTxVector ());
 
               NS_LOG_DEBUG ("Case 5d - previous is in the preamble and current is in L-SIG: mode=" << headerMode << ", psr=" << psr);
+std::cout << "sally test calculateplcpheaderper cases  " << "Case 5d - previous is in the preamble and current is in L-SIG: mode=" << headerMode << ", psr=" << psr << std::endl;
             }
         }
-
+std::cout << "sally test noiseInterference20: " << noiseInterferenceW << " delta value: " << (*j).GetDelta() << std::endl;
       noiseInterferenceW += (*j).GetDelta ();
+
       previous = (*j).GetTime ();
       j++;
     }
@@ -838,6 +899,8 @@ InterferenceHelper::CalculatePlcpTrnSnr (Ptr<InterferenceHelper::Event> event)
   NS_LOG_FUNCTION (this << event);
   NiChanges ni;
   double noiseInterferenceW = CalculateNoiseInterferenceW (event, &ni);
+std::cout << "sally test noiseInterference8: " << noiseInterferenceW << std::endl;
+
   double snr = CalculateSnr (event->GetRxPowerW (),
                              noiseInterferenceW,
                              event->GetTxVector ().GetChannelWidth ());
@@ -850,6 +913,8 @@ InterferenceHelper::CalculatePlcpPayloadSnrPer (Ptr<InterferenceHelper::Event> e
   NS_LOG_FUNCTION (this << event);
   NiChanges ni;
   double noiseInterferenceW = CalculateNoiseInterferenceW (event, &ni);
+std::cout << "sally test noiseInterference9: " << noiseInterferenceW << std::endl;
+
   double snr = CalculateSnr (event->GetRxPowerW (),
                              noiseInterferenceW,
                              event->GetTxVector ().GetChannelWidth ());
@@ -871,6 +936,8 @@ InterferenceHelper::CalculatePlcpHeaderSnrPer (Ptr<InterferenceHelper::Event> ev
   NS_LOG_FUNCTION (this << event);
   NiChanges ni;
   double noiseInterferenceW = CalculateNoiseInterferenceW (event, &ni);
+std::cout << "sally test noiseInterference10: " << noiseInterferenceW << std::endl;
+
   double snr = CalculateSnr (event->GetRxPowerW (),
                              noiseInterferenceW,
                              event->GetTxVector ().GetChannelWidth ());
