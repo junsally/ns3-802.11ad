@@ -116,6 +116,7 @@ static inline std::string PrintReceivedPacket (Ptr<Socket> socket)
 static void ReceivePacket (Ptr<Socket> socket)
 {
   NS_LOG_UNCOND (PrintReceivedPacket (socket));
+std::cout << PrintReceivedPacket (socket) << std::endl;
 }
 
 static void GenerateTraffic (Ptr<Socket> socket, uint32_t pktSize, 
@@ -197,8 +198,15 @@ int main (int argc, char *argv[])
 
   YansWifiChannelHelper wifiChannel;
   wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
-  wifiChannel.AddPropagationLoss ("ns3::LogDistancePropagationLossModel");
+//  wifiChannel.AddPropagationLoss ("ns3::LogDistancePropagationLossModel");
+  wifiChannel.AddPropagationLoss ("ns3::MmWavePropagationLossModel", "Frequency", DoubleValue (73e9));
   wifiPhy.SetChannel (wifiChannel.Create ());
+
+ /* Give all nodes steerable antenna */
+  wifiPhy.EnableAntenna (true, true);
+  wifiPhy.SetAntenna ("ns3::Directional60GhzAntenna",
+                           "Sectors", UintegerValue (8),
+                          "Antennas", UintegerValue (1));
 
   // Add a mac and disable rate control
   WifiMacHelper wifiMac;
@@ -258,6 +266,7 @@ int main (int argc, char *argv[])
 
   // Output what we are doing
   NS_LOG_UNCOND ("Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss << " dBm at time offset=" << delta << " ms");
+std::cout << "Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss << " dBm at time offset=" << delta << " ms" << std::endl;
 
   Simulator::ScheduleWithContext (source->GetNode ()->GetId (),
                                   Seconds (startTime), &GenerateTraffic, 
