@@ -295,8 +295,10 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
   switch (m_state->GetState ())
     {
     case YansWifiPhy::SWITCHING:
-      NS_LOG_DEBUG ("drop packet because of channel switching");
+      NS_LOG_DEBUG ("drop packet because of channel switching"); 
+      std::cout << "sally test drop packet because of channel switching" << std::endl;
       NotifyRxDrop (packet);
+      std::cout << "sally test m_plcpSuccess1: " << m_plcpSuccess << std::endl;
       m_plcpSuccess = false;
       /*
        * Packets received on the upcoming channel are added to the event list
@@ -330,6 +332,7 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
     case YansWifiPhy::TX:
       NS_LOG_DEBUG ("drop packet because already in Tx (power=" <<
                     rxPowerW << "W)");
+      std::cout << "drop packet because already in Tx (power=" << rxPowerW << "W)" << std::endl;
       NotifyRxDrop (packet);
       if (endRx > Simulator::Now () + m_state->GetDelayUntilIdle ())
         {
@@ -382,9 +385,11 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
             {
               if (preamble == WIFI_PREAMBLE_NONE && (m_mpdusNum == 0 || m_plcpSuccess == false))
                 {
+                  std::cout << "sally test m_plcpSuccess2: " << m_plcpSuccess << std::endl;
                   m_plcpSuccess = false;
                   m_mpdusNum = 0;
                   NS_LOG_DEBUG ("drop packet because no PLCP preamble/header has been received");
+                  std::cout << "drop packet because no PLCP preamble/header has been received" << std::endl;
                   NotifyRxDrop (packet);
                   goto maybeCcaBusy;
                 }
@@ -400,6 +405,7 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
                   if (ampduTag.GetRemainingNbOfMpdus () < (m_mpdusNum - 1))
                     {
                       NS_LOG_DEBUG ("Missing MPDU from the A-MPDU " << m_mpdusNum - ampduTag.GetRemainingNbOfMpdus ());
+                      std::cout << "Missing MPDU from the A-MPDU " << m_mpdusNum - ampduTag.GetRemainingNbOfMpdus () << std::endl;
                       m_mpdusNum = ampduTag.GetRemainingNbOfMpdus ();
                     }
                   else
@@ -410,11 +416,13 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
               else if (preamble != WIFI_PREAMBLE_NONE && packet->PeekPacketTag (ampduTag) && m_mpdusNum > 0)
                 {
                   NS_LOG_DEBUG ("New A-MPDU started while " << m_mpdusNum << " MPDUs from previous are lost");
+                  std::cout << "New A-MPDU started while " << m_mpdusNum << " MPDUs from previous are lost" << std::endl;
                   m_mpdusNum = ampduTag.GetRemainingNbOfMpdus ();
                 }
               else if (preamble != WIFI_PREAMBLE_NONE && m_mpdusNum > 0 )
                 {
                   NS_LOG_DEBUG ("Didn't receive the last MPDUs from an A-MPDU " << m_mpdusNum);
+                  std::cout << "Didn't receive the last MPDUs from an A-MPDU " << m_mpdusNum << std::endl;
                   m_mpdusNum = 0;
                 }
 
@@ -455,9 +463,10 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
           NS_LOG_DEBUG ("drop packet because signal power too Small (" <<
                         rxPowerW << "<" << GetEdThresholdW () << ")");
           
-            std::cout << "drop packet because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << ")" << std::endl << std::endl; //Sally test
+            std::cout << "sally test drop packet because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << ")" << std::endl << std::endl; //Sally test
 
           NotifyRxDrop (packet);
+          std::cout << "sally test m_plcpSuccess3: " << m_plcpSuccess << std::endl;
           m_plcpSuccess = false;
           goto maybeCcaBusy;
         }
@@ -465,6 +474,7 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
     case YansWifiPhy::SLEEP:
       NS_LOG_DEBUG ("drop packet because in sleep mode");
       NotifyRxDrop (packet);
+      std::cout << "sally test m_plcpSuccess4: " << m_plcpSuccess << std::endl;
       m_plcpSuccess = false;
       break;
     }
@@ -511,19 +521,23 @@ YansWifiPhy::StartReceivePacket (Ptr<Packet> packet,
       if (IsModeSupported (txMode) || IsMcsSupported (txMode))
         {
           NS_LOG_DEBUG ("receiving plcp payload"); //endReceive is already scheduled
+          std::cout << "sally test m_plcpSuccess5: " << m_plcpSuccess << std::endl;
           m_plcpSuccess = true;
         }
       else //mode is not allowed
         {
           NS_LOG_DEBUG ("drop packet because it was sent using an unsupported mode (" << txMode << ")");
           NotifyRxDrop (packet);
+          std::cout << "sally test m_plcpSuccess6: " << m_plcpSuccess << std::endl;
           m_plcpSuccess = false;
         }
     }
   else //plcp reception failed
     {
       NS_LOG_DEBUG ("drop packet because plcp preamble/header reception failed");
+      std::cout << "drop packet because plcp preamble/header reception failed" << std::endl;
       NotifyRxDrop (packet);
+      std::cout << "sally test m_plcpSuccess7: " << m_plcpSuccess << std::endl;
       m_plcpSuccess = false;
     }
 }
@@ -641,11 +655,13 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
   double rxPowerW = DbmToW (rxPowerDbm);
   if (m_plcpSuccess)
     {
+std::cout << "sally test m_plcpSuccess8: " << m_plcpSuccess << std::endl;
       /* Add Interference event for TRN field */
       Ptr<InterferenceHelper::Event> event;
       event = m_interference.Add (txVector,
                                   TRNUnit,
                                   rxPowerW);
+std::cout << "sally test m_plcpSuccess23: " << m_plcpSuccess << std::endl;
 
       /* Schedule an event for the complete reception of this TRN Field */
       Simulator::Schedule (TRNUnit, &YansWifiPhy::EndReceiveTrnField, this,
@@ -654,6 +670,7 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
 
       if (txVector.GetPacketType () == TRN_R)
         {
+std::cout << "sally test m_plcpSuccess24: " << m_plcpSuccess << std::endl;
           /* Change Rx Sector for the next TRN Field */
           m_directionalAntenna->SetCurrentRxSectorID (m_directionalAntenna->GetNextRxSectorID ());
         }
@@ -661,8 +678,8 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
   else
     {
       NS_LOG_DEBUG ("Drop TRN Field because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW ());
-   
-      std::cout << "Drop TRN Field because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << std::endl << std::endl;
+      std::cout << "sally test m_plcpSuccess20: " << m_plcpSuccess << std::endl; 
+      std::cout << "sally test drop TRN Field because signal power too Small (" << rxPowerW << "<" << GetEdThresholdW () << std::endl << std::endl;  //Sally test
 
     }
 }
@@ -695,10 +712,12 @@ YansWifiPhy::EndReceiveTrnFields (void)
 
   if (m_plcpSuccess && m_psduSuccess)
     {
+std::cout << "sally test m_plcpSuccess9: " << m_plcpSuccess << std::endl;
       m_state->SwitchFromRxEndOk ();
     }
   else
     {
+std::cout << "sally test m_plcpSuccess21: " << m_plcpSuccess << std::endl;
       m_state->SwitchFromRxEndError ();
     }
 }
@@ -763,6 +782,7 @@ YansWifiPhy::EndPsduReceive (Ptr<Packet> packet, enum WifiPreamble preamble, enu
 
   if (m_plcpSuccess == true)
     {
+      std::cout << "sally test m_plcpSuccess10: " << m_plcpSuccess << std::endl;
       NS_LOG_DEBUG ("mode=" << (event->GetPayloadMode ().GetDataRate (event->GetTxVector ())) <<
                     ", snr(dB)=" << RatioToDb (snrPer.snr) << ", per=" << snrPer.per << ", size=" << packet->GetSize ());
       double rnd = m_random->GetValue ();
@@ -802,6 +822,7 @@ YansWifiPhy::EndPsduReceive (Ptr<Packet> packet, enum WifiPreamble preamble, enu
 
   if (preamble == WIFI_PREAMBLE_NONE && mpdutype == LAST_MPDU_IN_AGGREGATE)
     {
+      std::cout << "sally test m_plcpSuccess11: " << m_plcpSuccess << std::endl;
       m_plcpSuccess = false;
     }
 }
@@ -818,6 +839,7 @@ YansWifiPhy::EndPsduOnlyReceive (Ptr<Packet> packet, PacketType packetType, enum
 
   if (m_plcpSuccess == true)
     {
+      std::cout << "sally test m_plcpSuccess12: " << m_plcpSuccess << std::endl;
       NS_LOG_DEBUG ("mode=" << (event->GetPayloadMode ().GetDataRate ()) <<
                     ", snr(dB)=" << RatioToDb(snrPer.snr) << ", per=" << snrPer.per << ", size=" << packet->GetSize ());
       double rnd = m_random->GetValue ();
@@ -858,6 +880,7 @@ YansWifiPhy::EndPsduOnlyReceive (Ptr<Packet> packet, PacketType packetType, enum
 
   if (preamble == WIFI_PREAMBLE_NONE && mpdutype == LAST_MPDU_IN_AGGREGATE)
     {
+      std::cout << "sally test m_plcpSuccess13: " << m_plcpSuccess << std::endl;
       m_plcpSuccess = false;
     }
 

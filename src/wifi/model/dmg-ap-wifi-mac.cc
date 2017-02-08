@@ -156,6 +156,7 @@ DmgApWifiMac::GetBeaconInterval(void) const
 void
 DmgApWifiMac::SetBeaconTransmissionInterval (Time interval)
 {
+std::cout << "sally test dmgapmac -> SetBeaconTransmissionInterval, m_btiDuration=" << interval << std::endl;
   NS_LOG_FUNCTION (this);
   m_btiDuration = interval;
 }
@@ -191,6 +192,7 @@ void
 DmgApWifiMac::SetBeaconInterval (Time interval)
 {
   NS_LOG_FUNCTION (this << interval);
+std::cout << "sally test dmgapmac -> SetBeaconInterval, m_beaconInterval=" << interval << std::endl;
   if ((interval.GetMicroSeconds () % 1024) != 0)
     {
       NS_LOG_WARN ("beacon interval should be multiple of 1024us (802.11 time unit), see IEEE Std. 802.11-2012");
@@ -229,6 +231,7 @@ Mac48Address to, uint8_t tid)
 {
   NS_LOG_FUNCTION (this << packet << from << to << static_cast<uint32_t> (tid));
   WifiMacHeader hdr;
+std::cout << "sally test dmgapmac -> ForwardDown" << ", from=" << from << ", to=" << to << ", tid=" << tid << std::endl;
 
   hdr.SetType (WIFI_MAC_QOSDATA);
   hdr.SetQosAckPolicy (WifiMacHeader::NORMAL_ACK);
@@ -252,6 +255,8 @@ Mac48Address to, uint8_t tid)
 void DmgApWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to, Mac48Address from)
 {
   NS_LOG_FUNCTION (this << packet << to << from);
+std::cout << "sally test dmgapmac -> Enqueue, to=" << to << ", from=" << from  << std::endl;
+
   if (to.IsBroadcast () || m_stationManager->IsAssociated (to))
     {
       ForwardDown (packet, from, to);
@@ -279,6 +284,8 @@ void
 DmgApWifiMac::SendProbeResp (Mac48Address to)
 {
   NS_LOG_FUNCTION (this << to);
+std::cout << "sally test dmgapmac -> SendProbeResp, to=" << to << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetProbeResp ();
   hdr.SetAddr1 (to);
@@ -303,6 +310,8 @@ void
 DmgApWifiMac::SendAssocResp (Mac48Address to, bool success)
 {
   NS_LOG_FUNCTION (this << to << success);
+std::cout << "sally test dmgapmac -> SendAssocResp, to=" << to << ", success" << success << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAssocResp ();
   hdr.SetAddr1 (to);
@@ -359,7 +368,7 @@ DmgApWifiMac::GetDmgCapabilities (void) const
   capabilities->SetMaxAssociatedStaNumber (254);
   capabilities->SetPowerSource (true); /* Not battery powered */
   capabilities->SetPcpForwarding (true);
-
+std::cout << "sally test dmgapmac -> GetDmgCapabilities" << std::endl;
   return capabilities;
 }
 
@@ -375,6 +384,7 @@ DmgApWifiMac::GetDmgOperationElement (void) const
   Time bhiDuration = m_btiDuration + m_abftDuration + m_atiDuration + 2 * GetMbifs ();
   operation->SetMinBHIDuration (static_cast<uint16_t> (bhiDuration.GetMicroSeconds ()));
   operation->SetMaxLostBeacons (10);
+std::cout << "sally test dmgapmac -> GetDmgOperationElement" << std::endl;
   return operation;
 }
 
@@ -432,6 +442,7 @@ DmgApWifiMac::AddAllocationPeriod (AllocationID allocationID,
                                    uint32_t allocationStart, uint16_t blockDuration)
 {
   NS_LOG_FUNCTION (this << allocationID << allocationType << staticAllocation << sourceAid << destAid);
+std::cout << "sally test dmgapmac -> AddAllocationPeriod, allocationID=" << allocationID << ", allocationType=" << allocationType << ", staticAllocation=" << staticAllocation << ", sourceAid=" << sourceAid << ", destAid=" << destAid << ", allocationStart=" << allocationStart << ", blockDuration=" << blockDuration << std::endl;
   AllocationField field;
   /* Allocation Control Field */
   field.SetAllocationID (allocationID);
@@ -457,6 +468,7 @@ DmgApWifiMac::AllocateBeamformingServicePeriod (uint8_t sourceAid, uint8_t destA
                                                 uint32_t allocationStart, bool isTxss)
 {
   NS_LOG_FUNCTION (this << sourceAid << destAid << allocationStart << isTxss);
+std::cout << "sally test dmgapmac -> AllocateBeamformingServicePeriod, sourceAid=" << sourceAid << ", destAid=" << destAid << ", allocationStart=" << allocationStart << ", isTxss=" << isTxss << std::endl;
   AllocationField field;
   /* Allocation Control Field */
   field.SetAllocationType (SERVICE_PERIOD_ALLOCATION);
@@ -484,6 +496,7 @@ void
 DmgApWifiMac::SendOneDMGBeacon (uint8_t sectorID, uint8_t antennaID, uint16_t count)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> SendOneDMGBeacon, sectorID=" << sectorID << ", antennaID=" << antennaID << ", count=" << count << std::endl;
   WifiMacHeader hdr;
   hdr.SetDMGBeacon ();                /* Set frame type to DMG beacon i.e. Change Frame Control Format. */
   hdr.SetAddr1 (GetBssid ());         /* BSSID */
@@ -577,6 +590,7 @@ void
 DmgApWifiMac::FrameTxOk (const WifiMacHeader &hdr)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> FrameTxOk" << std::endl;
 
   if (hdr.IsDMGBeacon ())
     {
@@ -675,7 +689,7 @@ void
 DmgApWifiMac::StartBeaconInterval (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting BI at " << Simulator::Now ());
-
+std::cout << "sally test dmgapmac -> StartBeaconInterval" << std::endl;
   /* Invoke callback */
   m_biStarted (GetAddress ());
 
@@ -711,6 +725,7 @@ void
 DmgApWifiMac::StartBeaconTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting BTI at " << Simulator::Now ());
+std::cout << "sally test dmgapmac -> StartBeaconTransmissionInterval" << std::endl;
   m_accessPeriod = CHANNEL_ACCESS_BTI;
 
   /* Re-initialize variables */
@@ -746,6 +761,7 @@ void
 DmgApWifiMac::StartAssociationBeamformTraining (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting A-BFT at " << Simulator::Now ());
+std::cout << "sally test dmgapmac -> StartAssociationBeamformTraining" << std::endl;
   m_accessPeriod = CHANNEL_ACCESS_ABFT;
 
   /* Schedule next period */
@@ -767,6 +783,9 @@ void
 DmgApWifiMac::StartSectorSweepSlot (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting A-BFT SSW Slot [" << m_ssSlotsPerABFT - m_remainingSlots << "] at " << Simulator::Now ());
+
+std::cout << "sally test dmgapmac -> StartSectorSweepSlot" << std::endl;
+
   m_receivedOneSSW = false;
   m_remainingSlots--;
   /* Schedule the beginning of the next A-BFT Slot */
@@ -791,6 +810,7 @@ void
 DmgApWifiMac::StartAnnouncementTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting ATI at " << Simulator::Now ());
+	std::cout << "sally test dmgapmac -> StartAnnouncementTransmissionInterval" << std::endl;
   m_accessPeriod = CHANNEL_ACCESS_ATI;
   /* Schedule DTI Period Starting Time */
   Simulator::Schedule (m_atiDuration, &DmgApWifiMac::StartDataTransmissionInterval, this);
@@ -836,7 +856,7 @@ DmgApWifiMac::StartDataTransmissionInterval (void)
   NS_LOG_FUNCTION (this);
   NS_LOG_INFO ("DMG AP Starting DTI at " << Simulator::Now ());
   m_accessPeriod = CHANNEL_ACCESS_DTI;
-
+std::cout << "sally test dmgapmac -> StartSectorSweepSlot" << std::endl;
   /* Schedule the beginning of next BHI interval */
   Time nextBeaconInterval = m_beaconInterval - (Simulator::Now () - m_biStartTime);
   m_dtiStarted (GetAddress (), nextBeaconInterval);
@@ -917,7 +937,7 @@ DmgApWifiMac::SendAnnounceFrame (Mac48Address to)
   hdr.SetDsNotFrom ();
   hdr.SetDsNotTo ();
   hdr.SetNoOrder ();
-
+std::cout << "sally test dmgapmac -> SendAnnounceFrame" << std::endl;
   ExtAnnounceFrame announceHdr;
   announceHdr.SetBeaconInterval (m_beaconInterval.GetMicroSeconds ());
 
@@ -937,6 +957,7 @@ void
 DmgApWifiMac::TxOk (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> TxOk" << std::endl;
   DmgWifiMac::TxOk (packet, hdr);
   /* For asociation */
   if (hdr.IsAssocResp() && m_stationManager->IsWaitAssocTxOk (hdr.GetAddr1 ()))
@@ -979,7 +1000,7 @@ DmgApWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
   NS_LOG_FUNCTION(this << packet << hdr);
   Mac48Address from = hdr->GetAddr2 ();
-
+std::cout << "sally test dmgapmac -> Receive" << std::endl;
   if (hdr->IsData ())
     {
       Mac48Address bssid = hdr->GetAddr1 ();

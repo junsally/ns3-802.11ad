@@ -312,10 +312,12 @@ InterferenceHelper::CalculateNoiseInterferenceW (Ptr<InterferenceHelper::Event> 
 std::cout << "sally test noiseInterference3: " << noiseInterference << " m_firstPower2: " << m_firstPower << std::endl;
 
   NS_ASSERT (m_rxing);
+  int sally5=0;
   for (NiChanges::const_iterator i = m_niChanges.begin () + 1; i != m_niChanges.end (); i++)
-    {
-std::cout << "sally test in CalculateNoiseInterferenceW: " << "event->getEndTime=" << event->GetEndTime() << ", i->getTime=" << i->GetTime() <<", event->GetRxPowerW=" << event->GetRxPowerW() << ", i->GetDelta=" << i->GetDelta() << std::endl; 
-      if ((event->GetEndTime () == i->GetTime ()) && event->GetRxPowerW () == -i->GetDelta ())
+    { 
+      sally5++;
+std::cout << "sally test in CalculateNoiseInterferenceW: " << "event->getEndTime=" << event->GetEndTime() << ", i->getTime=" << i->GetTime() <<", event->GetRxPowerW=" << event->GetRxPowerW() << ", i->GetDelta=" << i->GetDelta() << " sally5:" << sally5 << std::endl; 
+      if ((event->GetEndTime () == i->GetTime ()) && event->GetRxPowerW () == -i->GetDelta ()) 
         {
           break;
         }

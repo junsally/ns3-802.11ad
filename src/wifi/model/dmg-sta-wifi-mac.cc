@@ -452,6 +452,8 @@ void
 DmgStaWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
   NS_LOG_FUNCTION (this << packet << to);
+std::cout << "sally test dmgstamac -> Enqueue, to=" << to << std::endl;
+
   if (!IsAssociated ())
     {
       NotifyTxDrop (packet);
@@ -548,6 +550,7 @@ void
 DmgStaWifiMac::StartBeaconInterval (void)
 {
   NS_LOG_FUNCTION (this << "DMG AP Starting BI at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartBeaconInterval" << std::endl;
 
   /* Disable Channel Access by CBAP */
   EndContentionPeriod ();
@@ -593,6 +596,7 @@ DmgStaWifiMac::StartAssociationBeamformTraining (void)
 {
   NS_LOG_FUNCTION (this << "DMG STA Starting A-BFT at " << Simulator::Now ());
   m_accessPeriod = CHANNEL_ACCESS_ABFT;
+std::cout << "sally test dmgstamac -> StartAssociationBeamformingTraining, DMG STA starting A-BFT" << std::endl;
 
   /* Schedule access period after A-BFT */
   if (m_atiPresent)
@@ -614,6 +618,8 @@ void
 DmgStaWifiMac::DoAssociationBeamformingTraining (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> DoAssociationBeamformingTraining" << std::endl;
+
   if ((m_rssBackoffRemaining == 0))
     {
       /* Choose a random SSW Slot to transmit SSW Frames in it */
@@ -1092,6 +1098,8 @@ void
 DmgStaWifiMac::StartBeamformingServicePeriod (uint8_t peerAid, Mac48Address peerAddress, bool isInitiator, bool isTxss, Time length)
 {
   NS_LOG_FUNCTION (this << uint (peerAid) << peerAddress << isInitiator << isTxss << length );
+std::cout << "sally test dmgstamac -> StartBeamformingServicePeriod, peerAid=" << peerAid << ", peerAddress=" << peerAddress << ", isInitiator=" << isInitiator << ", isTxss=" << isTxss << ", length=" << length << std::endl;
+
   m_currentAllocation = SERVICE_PERIOD_ALLOCATION;
   m_currentAllocationLength = length;
   m_allocationStarted = Simulator::Now ();
@@ -1115,6 +1123,8 @@ DmgStaWifiMac::StartInitiatorSectorSweep (Mac48Address address, bool isTxss)
 {
   NS_LOG_FUNCTION (this << address << isTxss);
   NS_LOG_INFO ("DMG STA Starting ISS with " << address << " at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartInitiatorSectorSweep, address=" << address << ", isTxss=" << isTxss << std::endl;
+
   m_isIssInitiator = true;
   if (isTxss)
     {
@@ -1131,6 +1141,8 @@ DmgStaWifiMac::StartResponderSectorSweep (Mac48Address address, bool isTxss)
 {
   NS_LOG_FUNCTION (this << address << isTxss);
   NS_LOG_INFO ("DMG STA Starting RSS at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartResponderSectorSweep, address=" << address << ", isTxss=" << isTxss << std::endl;
+
   m_isIssInitiator = false;
   /* Obtain antenna configuration for the highest received SNR from the DMG AP to feed it back */
   m_feedbackAntennaConfig = GetBestAntennaConfiguration (address, true);
@@ -1151,6 +1163,8 @@ void
 DmgStaWifiMac::StartAbftResponderSectorSweep (Mac48Address address, bool isTxss)
 {
   NS_LOG_FUNCTION (this << address << isTxss);
+std::cout << "sally test dmgstamac -> StartAbftResponderSectorSweep" << std::endl;
+
   m_allocationStarted = Simulator::Now ();
   m_currentAllocationLength =  m_low->GetSectorSweepDuration (m_ssFramesPerSlot);
   StartResponderSectorSweep (address, isTxss);
@@ -1161,6 +1175,7 @@ DmgStaWifiMac::StartTransmitSectorSweep (Mac48Address address, BeamformingDirect
 {
   NS_LOG_FUNCTION (this << address << direction);
   NS_LOG_INFO ("DMG STA Starting TxSS at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartTransmitSectorSweep, address=" << address << ", direction=" << direction << std::endl;
 
   m_sectorId = 1;
   m_antennaId = 1;
@@ -1184,6 +1199,8 @@ DmgStaWifiMac::StartReceiveSectorSweep (Mac48Address address, BeamformingDirecti
 {
   NS_LOG_FUNCTION (this << address << direction);
   NS_LOG_INFO ("DMG STA Starting RxSS at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartReceiveSectorSweep, address=" << address << ", direction=" << direction << std::endl;
+
 }
 
 void
