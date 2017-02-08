@@ -30,8 +30,8 @@ NS_LOG_COMPONENT_DEFINE ("EvaluateDmgThroughput");
 using namespace ns3;
 using namespace std;
 
-Ptr<Node> apWifiNode;
-Ptr<Node> staWifiNode;
+Ptr<Node> sinkWifiNode;
+Ptr<Node> srcWifiNode;
 Ptr<Node> intfWifiNode;
 
 static inline std::string PrintReceivedPacket (Ptr<Socket> socket)                                    
@@ -95,10 +95,10 @@ main(int argc, char *argv[])
   double Prss = -80;  // -dBm
   double Irss = -95;  // -dBm
   double delta = 0;  // microseconds
-  uint32_t PpacketSize = 1000; // bytes
-  uint32_t IpacketSize = 1000; // bytes
+  uint32_t PpacketSize = 10000; // bytes
+  uint32_t IpacketSize = 10000; // bytes
 
-  uint32_t numPackets = 1;
+  uint32_t numPackets = 100000;
   double interval = 1.0; // seconds
   double startTime = 1.0; // seconds
   double offset = 91;  // This is a magic number used to set the 
@@ -244,8 +244,8 @@ main(int argc, char *argv[])
       /* Make two nodes and set them up with the phy and the mac */
       NodeContainer wifiNodes;
       wifiNodes.Create (3);
-      apWifiNode = wifiNodes.Get (0);
-      staWifiNode = wifiNodes.Get (1);
+      sinkWifiNode = wifiNodes.Get (0);
+      srcWifiNode = wifiNodes.Get (1);
       intfWifiNode = wifiNodes.Get (2);
 
       /**** Allocate a default Adhoc Wifi MAC ****/
@@ -253,7 +253,7 @@ main(int argc, char *argv[])
       DmgWifiMacHelper wifiMac = DmgWifiMacHelper::Default ();
 
       Ssid ssid = Ssid ("test802.11ad");
-      wifiMac.SetType ("ns3::DmgApWifiMac",
+/*      wifiMac.SetType ("ns3::DmgApWifiMac",
                        "Ssid", SsidValue(ssid),
                        "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true),
                        "BE_MaxAmpduSize", UintegerValue (262143), //Enable A-MPDU with the highest maximum size allowed by the standard
@@ -262,7 +262,7 @@ main(int argc, char *argv[])
                        "BeaconInterval", TimeValue (MicroSeconds (102400)),
                        "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
                        "ATIDuration", TimeValue (MicroSeconds (300)));
-
+*/
 /*      wifiMac.SetType ("ns3::DmgStaWifiMac",
                        "Ssid", SsidValue (ssid),
                        "ActiveProbing", BooleanValue (false),
@@ -270,16 +270,17 @@ main(int argc, char *argv[])
                        "BE_MaxAmsduSize", UintegerValue (7935),
                        "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
 */
-
-      NetDeviceContainer apDevice;
-      apDevice = wifi.Install (wifiPhy, wifiMac, apWifiNode);
+      wifiMac.SetType ("ns3::DmgAdhocWifiMac");
+      NetDeviceContainer devices;
+      devices = wifi.Install (wifiPhy, wifiMac, sinkWifiNode);
 
 
       // This will disable these sending devices from detecting a signal 
       // so that they do not backoff
-//      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0.0) );
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0.0) );
       wifiPhy.Set ("TxGain", DoubleValue (offset + Prss) );
-      wifiMac.SetType ("ns3::DmgStaWifiMac",
+      devices.Add (wifi.Install (wifiPhy, wifiMac, srcWifiNode));
+/*      wifiMac.SetType ("ns3::DmgStaWifiMac",
                        "Ssid", SsidValue (ssid),
                        "ActiveProbing", BooleanValue (false),
                        "BE_MaxAmpduSize", UintegerValue (262143), //Enable A-MPDU with the highest maximum size allowed by the standard
@@ -288,9 +289,9 @@ main(int argc, char *argv[])
 
       NetDeviceContainer staDevices;
       staDevices.Add (wifi.Install (wifiPhy, wifiMac, staWifiNode));
-
+*/
       wifiPhy.Set ("TxGain", DoubleValue (offset + Irss) );
-      staDevices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
+      devices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
 
 
       /* Setting mobility model, Initial Position 1 meter apart */
@@ -312,10 +313,8 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
       Ipv4AddressHelper address;
       address.SetBase ("10.1.1.0", "255.255.255.0");
-      Ipv4InterfaceContainer apInterface;
-      apInterface = address.Assign (apDevice);
-      Ipv4InterfaceContainer staInterface;
-      staInterface = address.Assign (staDevices);
+      Ipv4InterfaceContainer interfaces;
+      interfaces = address.Assign (devices);
 /*      Ipv4InterfaceContainer intfInterface;
       intfInterface = address.Assign (intfDevice);
 */
@@ -329,12 +328,12 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
 
   TypeId tidSoc = TypeId::LookupByName ("ns3::UdpSocketFactory");
-  Ptr<Socket> recvSink = Socket::CreateSocket (apWifiNode, tidSoc);
+  Ptr<Socket> recvSink = Socket::CreateSocket (sinkWifiNode, tidSoc);
   InetSocketAddress local = InetSocketAddress (Ipv4Address ("10.1.1.1"), 80);
   recvSink->Bind (local);
   recvSink->SetRecvCallback (MakeCallback (&ReceivePacket));
 
-  Ptr<Socket> source = Socket::CreateSocket (staWifiNode, tidSoc);
+  Ptr<Socket> source = Socket::CreateSocket (srcWifiNode, tidSoc);
   InetSocketAddress remote = InetSocketAddress (Ipv4Address ("255.255.255.255"), 80);
   source->SetAllowBroadcast (true);
   source->Connect (remote);
@@ -351,12 +350,12 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
 
       /* Install Simple UDP Server on the access point */
-//      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
+      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 80));
 //      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (apInterface.GetAddress (0), 9999));
-/*      ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
+      ApplicationContainer sinkApp = sinkHelper.Install (sinkWifiNode);
       Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApp.Get (0));
       sinkApp.Start (Seconds (0.0));
-*/
+
       /* Install TCP/UDP Transmitter on the station */
 /*      Address dest (InetSocketAddress (apInterface.GetAddress (0), 9999));
       ApplicationContainer srcApp;
@@ -383,8 +382,9 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
       if (pcapTracing)
         {
           wifiPhy.SetPcapDataLinkType (YansWifiPhyHelper::DLT_IEEE802_11_RADIO);
-          wifiPhy.EnablePcap ("Traces/AccessPoint" + mcs.str (), apDevice, false);
-          wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevices, false);
+          wifiPhy.EnablePcap ("Traces/sink" + mcs.str (), devices.Get(0), false);
+          wifiPhy.EnablePcap ("Traces/source" + mcs.str (), devices.Get(1), false);
+          wifiPhy.EnablePcap ("Traces/interferer" + mcs.str (), devices.Get(2), false);
         }
 
   NS_LOG_UNCOND ("Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss << " dBm at time offset=" << delta << " ms");
@@ -399,11 +399,11 @@ std::cout << "Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss
                                   interferer, IpacketSize, numPackets, interPacketInterval);
 
 
-      Simulator::Stop (Seconds (simulationTime));
+//      Simulator::Stop (Seconds (simulationTime));
       Simulator::Run ();
 
       /* Calculate Throughput */
-  //    cout << "SMCS" << mcs.str () << '\t' << sink->GetTotalRx () * (double) 8/1e6 << endl;
+      cout << "SMCS" << mcs.str () << '\t' << sink->GetTotalRx () * (double) 8/1e6 << endl;
 
       Simulator::Destroy ();
     }

@@ -148,7 +148,7 @@ int main (int argc, char *argv[])
   bool verbose = false;
 
   // these are not command line arguments for this version
-  uint32_t numPackets = 1;
+  uint32_t numPackets = 100;
   double interval = 1.0; // seconds
   double startTime = 10.0; // seconds
   double distanceToRx = 100.0; // meters
@@ -203,11 +203,11 @@ int main (int argc, char *argv[])
   wifiPhy.SetChannel (wifiChannel.Create ());
 
  /* Give all nodes steerable antenna */
-  wifiPhy.EnableAntenna (true, true);
+/*  wifiPhy.EnableAntenna (true, true);
   wifiPhy.SetAntenna ("ns3::Directional60GhzAntenna",
                            "Sectors", UintegerValue (8),
                           "Antennas", UintegerValue (1));
-
+*/
   // Add a mac and disable rate control
   WifiMacHelper wifiMac;
   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager",
