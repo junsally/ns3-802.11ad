@@ -1207,6 +1207,8 @@ void
 DmgStaWifiMac::SendIssSectorSweepFrame (Mac48Address address, BeamformingDirection direction,
                                         uint8_t sectorID, uint8_t antennaID,  uint16_t count)
 {
+std::cout << "sally test dmgstamac -> SendIssSectorSweepFrame, address=" << address << ", direction=" << direction << ", sectorID=" << sectorID << ", antennaID=" << antennaID << ", count=" << count << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetType (WIFI_MAC_CTL_DMG_SSW);
 
@@ -1264,6 +1266,7 @@ DmgStaWifiMac::SendRssSectorSweepFrame (Mac48Address address, BeamformingDirecti
 {
   WifiMacHeader hdr;
   hdr.SetType (WIFI_MAC_CTL_DMG_SSW);
+std::cout << "sally test dmgstamac -> SendRssSectorSweepFrame, address=" << address << ", direction=" << direction << ", sectorID=" << sectorID << ", antennaID=" << antennaID << ", count=" << count << std::endl;
 
   /* Header Duration*/
   hdr.SetDuration (GetRemainingAllocationTime ());
@@ -1319,7 +1322,9 @@ DmgStaWifiMac::SendRssSectorSweepFrame (Mac48Address address, BeamformingDirecti
 void
 DmgStaWifiMac::SendSectorSweepFrame (Mac48Address address, BeamformingDirection direction,
                                      uint8_t sectorID, uint8_t antennaID,  uint16_t count)
-{ 
+{
+std::cout << "sally test dmgstamac -> SendSectorSweepFrame, address=" << address << ", direction=" << direction << ", sectorID=" << sectorID << ", antennaID=" << antennaID << ", count=" << count << std::endl;
+ 
   WifiMacHeader hdr;
   hdr.SetType (WIFI_MAC_CTL_DMG_SSW);
 
@@ -1378,7 +1383,7 @@ void
 DmgStaWifiMac::SendSswFbckFrame (Mac48Address receiver)
 {
   NS_LOG_FUNCTION (this);
-
+std::cout << "sally test dmgstamac -> SendSswFbckFrame, receiver=" << receiver << std::endl;
   WifiMacHeader hdr;
   /* The Duration field is set until the end of the current allocation */
   hdr.SetDuration (GetRemainingAllocationTime ());
@@ -1431,6 +1436,8 @@ DmgStaWifiMac::SendSswFbckFrame (Mac48Address receiver)
 void
 DmgStaWifiMac::SendSswAckFrame (Mac48Address receiver)
 {
+std::cout << "sally test dmgstamac -> SendSswAckFrame, receiver=" << receiver << std::endl;
+
   NS_LOG_FUNCTION (this);
   /* send a SSW Feedback when you receive a SSW Slot after MBIFS. */
   WifiMacHeader hdr;
@@ -1489,6 +1496,8 @@ DmgStaWifiMac::SendSswAckFrame (Mac48Address receiver)
 void
 DmgStaWifiMac::FrameTxOk (const WifiMacHeader &hdr)
 {
+std::cout << "sally test dmgstamac -> FrameTxOk, hdr=" << &hdr << std::endl;
+
   NS_LOG_FUNCTION (this);
   if (hdr.IsSSW ())
     {
@@ -1543,18 +1552,24 @@ DmgStaWifiMac::FrameTxOk (const WifiMacHeader &hdr)
 void
 DmgStaWifiMac::BrpSetupCompleted (Mac48Address address)
 {
+std::cout << "sally test dmgstamac -> BrpSetupCompleted, address=" << address << std::endl;
+
   NS_LOG_FUNCTION (this << address);
 }
 
 void
 DmgStaWifiMac::NotifyBrpPhaseCompleted (void)
 {
+std::cout << "sally test dmgstamac -> NotifyBrpPhaseCompleted" << std::endl;
+
   NS_LOG_FUNCTION (this);
 }
 
 void
 DmgStaWifiMac::RequestInformation (Mac48Address stationAddress)
 {
+std::cout << "sally test dmgstamac -> RequestInformation, stationAddress=" << stationAddress << std::endl;
+
   NS_LOG_FUNCTION (this << stationAddress);
   /* Obtain Information about the node like DMG Capabilities and AID */
   ExtInformationRequest requestHdr;
@@ -1570,6 +1585,8 @@ DmgStaWifiMac::RequestInformation (Mac48Address stationAddress)
 void
 DmgStaWifiMac::ForwardActionFrame (Mac48Address to, WifiActionHeader &actionHdr, Header &actionBody)
 {
+std::cout << "sally test dmgstamac -> ForwardActionFrame, to=" << to << std::endl;
+
   NS_LOG_FUNCTION (this << to);
   WifiMacHeader hdr;
   hdr.SetAction ();
@@ -1589,6 +1606,8 @@ DmgStaWifiMac::ForwardActionFrame (Mac48Address to, WifiActionHeader &actionHdr,
 Ptr<RelayTransferParameterSetElement>
 DmgStaWifiMac::GetRelayTransferParameterSet (void) const
 {
+std::cout << "sally test dmgstamac -> GetRelayTransferParameterSet" << std::endl;
+
   Ptr<RelayTransferParameterSetElement> element = Create<RelayTransferParameterSetElement> ();
   element->SetDuplexMode (m_rdsDuplexMode);
   element->SetCooperationMode (false);              /* Link Switching Type only */
@@ -1604,6 +1623,8 @@ DmgStaWifiMac::GetRelayTransferParameterSet (void) const
 void
 DmgStaWifiMac::SendChannelMeasurementRequest (Mac48Address to, uint8_t token)
 {
+std::cout << "sally test dmgstamac -> SendChannelMeasurementRequest, to=" << to << ", token=" << token << std::endl;
+
   NS_LOG_FUNCTION (this << to << token);
   WifiMacHeader hdr;
   hdr.SetAction ();
