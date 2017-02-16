@@ -95,10 +95,10 @@ main(int argc, char *argv[])
   double Prss = -80;  // -dBm
   double Irss = -95;  // -dBm
   double delta = 0;  // microseconds
-  uint32_t PpacketSize = 10000; // bytes
-  uint32_t IpacketSize = 10000; // bytes
+  uint32_t PpacketSize = 1000; // bytes
+  uint32_t IpacketSize = 1000; // bytes
 
-  uint32_t numPackets = 100000;
+  uint32_t numPackets = 1;
   double interval = 1.0; // seconds
   double startTime = 1.0; // seconds
   double offset = 91;  // This is a magic number used to set the 
