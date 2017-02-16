@@ -72,6 +72,7 @@ DmgAdhocWifiMac::SetAddress (Mac48Address address)
   //transmitted by each STA set to that STA's address.
   //
   //This is why we're overriding this method.
+std::cout << "sally test dmgAdhocWifiMac -> SetAddress, address=" << address << std::endl;
   RegularWifiMac::SetAddress (address);
   RegularWifiMac::SetBssid (address);
 }
@@ -80,6 +81,8 @@ void
 DmgAdhocWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
   NS_LOG_FUNCTION (this << packet << to);
+std::cout << "sally test dmgAdhocWifiMac -> Enqueue, to=" << to << std::endl;
+
   WifiMacHeader hdr;
 
   // If we are not a QoS AP then we definitely want to use AC_BE to
@@ -135,48 +138,63 @@ void
 DmgAdhocWifiMac::StartBeaconInterval (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> StartBeaconInterval" << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::StartBeaconTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> StartBeaconTransmissionInterval" << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::StartAssociationBeamformTraining (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> StartAssociationBeamformTraining" << std::endl;
 }
 
 void
 DmgAdhocWifiMac::StartAnnouncementTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> StartAnnouncementTransmissionInterval" << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::StartDataTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> StartDataTransmissionInterval" << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::FrameTxOk (const WifiMacHeader &hdr)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> FrameTxOk, hdr=" << &hdr << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::BrpSetupCompleted (Mac48Address address)
 {
   NS_LOG_FUNCTION (this << address);
+std::cout << "sally test dmgAdhocWifiMac -> BrpSetupCompleted, address=" << address << std::endl;
+
 }
 
 void
 DmgAdhocWifiMac::NotifyBrpPhaseCompleted (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgAdhocWifiMac -> NotifyBrpPhaseCompleted" << std::endl;
+
 }
 
 Ptr<MultiBandElement>
@@ -199,6 +217,8 @@ DmgAdhocWifiMac::AddAntennaConfig (SECTOR_ID txSectorID, ANTENNA_ID txAntennaID,
                                    SECTOR_ID rxSectorID, ANTENNA_ID rxAntennaID,
                                    Mac48Address address)
 {
+std::cout << "sally test dmgAdhocWifiMac -> AddAntennaConfig, txSectorID=" << txSectorID << ", rxSectorID=" << rxSectorID << ", address=" << address << std::endl;
+
   ANTENNA_CONFIGURATION_TX antennaConfigTx = std::make_pair (txSectorID, txAntennaID);
   ANTENNA_CONFIGURATION_RX antennaConfigRx = std::make_pair (rxSectorID, rxAntennaID);
   m_bestAntennaConfig[address] = std::make_pair (antennaConfigTx, antennaConfigRx);
@@ -207,6 +227,8 @@ DmgAdhocWifiMac::AddAntennaConfig (SECTOR_ID txSectorID, ANTENNA_ID txAntennaID,
 void
 DmgAdhocWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
+std::cout << "sally test dmgAdhocWifiMac -> Receive, hdr" << *hdr << std::endl;
+
   NS_LOG_FUNCTION (this << packet << hdr);
   NS_ASSERT (!hdr->IsCtl ());
   Mac48Address from = hdr->GetAddr2 ();
@@ -234,6 +256,8 @@ DmgAdhocWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 Ptr<DmgCapabilities>
 DmgAdhocWifiMac::GetDmgCapabilities (void) const
 {
+std::cout << "sally test dmgAdhocWifiMac -> GetDmgCapabilities" << std::endl;
+
   Ptr<DmgCapabilities> capabilities = Create<DmgCapabilities> ();
   return capabilities;
 }

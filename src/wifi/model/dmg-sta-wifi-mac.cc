@@ -141,6 +141,7 @@ void
 DmgStaWifiMac::DoInitialize (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> DoInitialize" << std::endl;
   /* Initialize DMG STA and start Beacon Interval */
   DmgWifiMac::DoInitialize ();
   StartBeaconInterval ();
@@ -150,6 +151,7 @@ void
 DmgStaWifiMac::DoDispose ()
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> DoDispose" << std::endl;
   DmgWifiMac::DoDispose ();
 }
 
@@ -157,6 +159,7 @@ void
 DmgStaWifiMac::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> stationManager)
 {
   NS_LOG_FUNCTION (this << stationManager);
+std::cout << "sally test dmgstamac -> SetWifiRemoteStationManager" << std::endl;
   DmgWifiMac::SetWifiRemoteStationManager (stationManager);
 }
 
@@ -164,6 +167,7 @@ void
 DmgStaWifiMac::SetMaxLostBeacons (uint32_t lost)
 {
   NS_LOG_FUNCTION (this << lost);
+std::cout << "sally test dmgstamac -> SetMaxLostBeacons, lost=" << lost << std::endl;
   m_maxLostBeacons = lost;
 }
 
@@ -171,6 +175,7 @@ void
 DmgStaWifiMac::SetProbeRequestTimeout (Time timeout)
 {
   NS_LOG_FUNCTION (this << timeout);
+std::cout << "sally test dmgstamac -> SetProbeRequestTimeout, timeout=" << timeout << std::endl;
   m_probeRequestTimeout = timeout;
 }
 
@@ -178,6 +183,7 @@ void
 DmgStaWifiMac::SetAssocRequestTimeout (Time timeout)
 {
   NS_LOG_FUNCTION (this << timeout);
+std::cout << "sally test dmgstamac -> SetAssocRequestTimeout, timeout=" << timeout << std::endl;
   m_assocRequestTimeout = timeout;
 }
 
@@ -185,6 +191,7 @@ void
 DmgStaWifiMac::StartActiveAssociation (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> StartActiveAssociation" << std::endl;
   TryToEnsureAssociated ();
 }
 
@@ -192,6 +199,7 @@ void
 DmgStaWifiMac::SetActiveProbing (bool enable)
 {
   NS_LOG_FUNCTION(this << enable);
+std::cout << "sally test dmgstamac -> SetActiveProbing, enable=" << enable << std::endl;
   if (enable)
     {
       Simulator::ScheduleNow (&DmgStaWifiMac::TryToEnsureAssociated, this);
@@ -206,6 +214,7 @@ DmgStaWifiMac::SetActiveProbing (bool enable)
 bool
 DmgStaWifiMac::GetActiveProbing (void) const
 {
+std::cout << "sally test dmgstamac -> GetActiveProbing, m_activeProbing=" << m_activeProbing << std::endl;
   return m_activeProbing;
 }
 
@@ -213,6 +222,7 @@ void
 DmgStaWifiMac::SendProbeRequest (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> SendProbeRequest" << std::endl;
   WifiMacHeader hdr;
   hdr.SetProbeReq ();
   hdr.SetAddr1 (Mac48Address::GetBroadcast ());
@@ -242,6 +252,7 @@ DmgStaWifiMac::SendProbeRequest (void)
 void
 DmgStaWifiMac::SendAssociationRequest (void)
 {
+std::cout << "sally test dmgstamac -> SendAssociationRequest" << std::endl;
   NS_LOG_FUNCTION (this << GetBssid ());
   WifiMacHeader hdr;
   hdr.SetAssocReq ();
@@ -281,6 +292,7 @@ void
 DmgStaWifiMac::TryToEnsureAssociated (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> TryToEnsureAssociated" << std::endl;
   switch (m_state)
   {
   case ASSOCIATED:
@@ -329,6 +341,7 @@ void
 DmgStaWifiMac::AssocRequestTimeout (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> AssocRequestTimeout" << std::endl;
   SetState (WAIT_ASSOC_RESP);
   SendAssociationRequest ();
 }
@@ -337,6 +350,7 @@ uint16_t
 DmgStaWifiMac::GetAssociationID (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> GetAssociationID" << std::endl;
   if (m_state == ASSOCIATED)
     {
       return m_aid;
@@ -351,6 +365,7 @@ void
 DmgStaWifiMac::CreateAllocation (Mac48Address to, DmgTspecElement &elem)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> CreateAllocation, to=" << to << ", elem=" << elem << std::endl;
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (to);
@@ -379,6 +394,7 @@ void
 DmgStaWifiMac::ProbeRequestTimeout (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> ProbeRequestTimeout" << std::endl;
   SetState (WAIT_PROBE_RESP);
   SendProbeRequest ();
 }
@@ -387,6 +403,7 @@ void
 DmgStaWifiMac::MissedBeacons (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> MissedBeacons" << std::endl;
   if (m_beaconWatchdogEnd > Simulator::Now ())
   {
     if (m_beaconWatchdog.IsRunning ())
@@ -405,6 +422,7 @@ void
 DmgStaWifiMac::RestartBeaconWatchdog (Time delay)
 {
   NS_LOG_FUNCTION (this << delay);
+std::cout << "sally test dmgstamac -> RestartBeaconWatchdog, delay=" << delay << std::endl;
   m_beaconWatchdogEnd = std::max (Simulator::Now () + delay, m_beaconWatchdogEnd);
   if (Simulator::GetDelayLeft (m_beaconWatchdog) < delay && m_beaconWatchdog.IsExpired ())
     {
@@ -416,12 +434,14 @@ DmgStaWifiMac::RestartBeaconWatchdog (Time delay)
 bool
 DmgStaWifiMac::IsAssociated (void) const
 {
+std::cout << "sally test dmgstamac -> IsAssociated" << std::endl;
   return m_state == ASSOCIATED;
 }
 
 bool
 DmgStaWifiMac::IsWaitAssocResp (void) const
 {
+std::cout << "sally test dmgstamac -> IsWaitAssocResp" << std::endl;
   return m_state == WAIT_ASSOC_RESP;
 }
 
@@ -429,6 +449,7 @@ void
 DmgStaWifiMac::ForwardDataFrame (WifiMacHeader hdr, Ptr<Packet> packet, Mac48Address destAddress)
 {
   NS_LOG_FUNCTION (this << packet << destAddress);
+std::cout << "sally test dmgstamac -> ForwardDataFrame, hdr=" << hdr << ", destAddress=" << destAddress << std::endl;
   hdr.SetAddr1 (destAddress);
   hdr.SetAddr2 (GetAddress ());
   if (hdr.IsQosAmsdu ())
@@ -540,6 +561,7 @@ std::cout << "sally test dmgstamac -> Enqueue, to=" << to << std::endl;
 void
 DmgStaWifiMac::AddForwardingEntry (Mac48Address nextHopAddress)
 {
+std::cout << "sally test dmgstamac -> AddForwardingEntry, nextHopAddress=" << nextHopAddress << std::endl;
   AccessPeriodInformation info;
   info.isCbapPeriod = true;
   info.nextHopAddress = nextHopAddress;
@@ -582,6 +604,7 @@ void
 DmgStaWifiMac::StartBeaconTransmissionInterval (void)
 {
   NS_LOG_FUNCTION (this << "DMG STA Starting BTI at " << Simulator::Now ());
+std::cout << "sally test dmgstamac -> StartBeaconTransmissionInterval" << std::endl;
   m_accessPeriod = CHANNEL_ACCESS_BTI;
 
   /* Re-initialize variables since we expect to receive DMG Beacon */
@@ -661,6 +684,7 @@ DmgStaWifiMac::MissedSswFeedback (void)
    * following beacon intervals. The responder may re-initiate RSS only during an A-BFT when the backoff
    * count becomes zero. The STA shall set FailedRSSAttempts to 0 upon successfully receiving an SSW-
    * Feedback frame during the A-BFT. */
+std::cout << "sally test dmgstamac -> MissedSswFeedback" << std::endl;
   m_failedRssAttemptsCounter++;
   if (m_failedRssAttemptsCounter < m_rssAttemptsLimit)
     {
@@ -676,6 +700,7 @@ DmgStaWifiMac::MissedSswFeedback (void)
 void
 DmgStaWifiMac::StartAnnouncementTransmissionInterval (void)
 {
+std::cout << "sally test dmgstamac -> StartAnnouncementTransmissionInterval, DMG STA Starting ATI at " << Simulator::Now () << std::endl;
   NS_LOG_FUNCTION (this << "DMG STA Starting ATI at " << Simulator::Now ());
   m_accessPeriod = CHANNEL_ACCESS_ATI;
   /* We started ATI Period we should stay in Omni Drectional waiting for packets */
@@ -687,6 +712,7 @@ DmgStaWifiMac::StartAnnouncementTransmissionInterval (void)
 void
 DmgStaWifiMac::StartDataTransmissionInterval (void)
 {
+std::cout << "sally test dmgstamac -> StartDataTransmissionInterval, DMG STA Starting DTI at " << Simulator::Now () << std::endl;
   NS_LOG_FUNCTION (this << "DMG STA Starting DTI at " << Simulator::Now ());
   m_accessPeriod = CHANNEL_ACCESS_DTI;
 
@@ -891,6 +917,7 @@ void
 DmgStaWifiMac::InitiateRelayPeriods (RELAY_LINK_INFO &info)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> InitiateRelayPeriods" << std::endl;
   m_periodProtected = true;
   m_relayLinkInfo = info;
   /* Schedule peridos assoicated to the transmission link */
@@ -905,6 +932,7 @@ void
 DmgStaWifiMac::EndRelayPeriods (REDS_PAIR &pair)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> EndRelayPeriods" << std::endl;
   m_periodProtected = false;
   /* Store information related to the relay operation mode */
   m_relayLinkMap[pair] = m_relayLinkInfo;
@@ -913,6 +941,7 @@ DmgStaWifiMac::EndRelayPeriods (REDS_PAIR &pair)
 void
 DmgStaWifiMac::RegisterRelaySelectorFunction (ChannelMeasurementCallback callback)
 {
+std::cout << "sally test dmgstamac -> RegisterRelaySelectorFunction" << std::endl;
   m_channelMeasurementCallback = callback;
 }
 
@@ -920,6 +949,7 @@ void
 DmgStaWifiMac::RelayLinkChangeIntervalTimeout (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> RelayLinkChangeIntervalTimeout, DMG STA Starting Link Change Interval at " << Simulator::Now () << std::endl;
   NS_LOG_INFO ("DMG STA Starting Link Change Interval at " << Simulator::Now ());
   if (m_relayLinkInfo.rdsDuplexMode == 1) // FD-AF
     {
@@ -964,6 +994,7 @@ DmgStaWifiMac::RelayLinkChangeIntervalTimeout (void)
 bool
 DmgStaWifiMac::CheckTimeAvailabilityForPeriod (Time servicePeriodDuration, Time partialDuration)
 {
+std::cout << "sally test dmgstamac -> CheckTimeAvailabilityForPeriod, servicePeriodDuration=" << servicePeriodDuration << ", partialDuration=" << partialDuration << std::endl;
   Time remainingTime = servicePeriodDuration - partialDuration;
   return (remainingTime >= partialDuration);
 }
@@ -973,6 +1004,7 @@ DmgStaWifiMac::StartFullDuplexRelay (AllocationID allocationID, Time length,
                                      uint8_t peerAid, Mac48Address peerAddress, bool isSource)
 {
   NS_LOG_FUNCTION (this << length << uint32_t (peerAid) << peerAddress << isSource);
+std::cout << "sally test dmgstamac -> StartFullDuplexRelay, allocationID=" << allocationID << ", length=" << length << ", peerAid=" << peerAid << ", peerAddress=" << peerAddress << ", isSource=" << isSource << std::endl;
   m_currentAllocationID = allocationID;
   m_currentAllocation = SERVICE_PERIOD_ALLOCATION;
   m_currentAllocationLength = length;
@@ -1001,6 +1033,7 @@ void
 DmgStaWifiMac::SuspendRelayPeriod (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> SuspendRelayPeriod" << std::endl;
   m_sp->DisableChannelAccess ();
 }
 
@@ -1008,6 +1041,7 @@ void
 DmgStaWifiMac::MissedAck (const WifiMacHeader &hdr)
 {
   NS_LOG_FUNCTION (this << hdr);
+std::cout << "sally test dmgstamac -> MissedAck" << std::endl;
   if (m_periodProtected && (hdr.GetAddr1 () == m_relayLinkInfo.dstRedsAddress))
     {
       /* If a source REDS transmits a frame to the destination REDS via the direct link but does not receive an
@@ -1023,6 +1057,7 @@ void
 DmgStaWifiMac::RelayDataSensingTimeout (void)
 {
   NS_LOG_FUNCTION (this << m_relayDataExchanged << m_dcfManager->IsReceiving () << m_moreData);
+std::cout << "sally test dmgstamac -> RelayDataSensingTimeout, m_relayDataExchanged=" << m_relayDataExchanged << ", m_dcfManager->IsReceiving=" << m_dcfManager->IsReceiving () << ", m_moreData=" << m_moreData << std::endl;
   if (m_relayLinkInfo.rdsDuplexMode == 1) // FD-AF
     {
       if ((!m_relayDataExchanged) && (!m_dcfManager->IsReceiving ()) && m_moreData)
@@ -1055,6 +1090,7 @@ void
 DmgStaWifiMac::SwitchTransmissionLink (uint8_t srcAid, uint8_t dstAid)
 {
   NS_LOG_FUNCTION (this << uint32_t (srcAid) << uint32_t (dstAid));
+std::cout << "sally test dmgstamac -> SwitchTransmissionLink, srcAid=" << srcAid << ", dstAid=" << dstAid << std::endl;
   REDS_PAIR redsPair = std::make_pair (srcAid, dstAid);
   RELAY_LINK_MAP_ITERATOR it = m_relayLinkMap.find (redsPair);
   if (it != m_relayLinkMap.end ())
@@ -1084,6 +1120,7 @@ void
 DmgStaWifiMac::SwitchToRelayOpertionalMode (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> SwitchToRelayOperationalMode" << std::endl;
   m_relayMode = true;
 }
 
@@ -1091,6 +1128,7 @@ void
 DmgStaWifiMac::RelayOperationTimeout (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> RelayOperationTimeout" << std::endl;
   m_relayMode = false;
 }
 
@@ -1653,6 +1691,8 @@ std::cout << "sally test dmgstamac -> SendChannelMeasurementRequest, to=" << to 
 void
 DmgStaWifiMac::SendChannelMeasurementReport (Mac48Address to, uint8_t token, ChannelMeasurementInfoList &measurementList)
 {
+std::cout << "sally test dmgstamac -> SendChannelMeasurementReport, to=" << to << ", token=" << token << std::endl;
+
   NS_LOG_FUNCTION (this);
   WifiMacHeader hdr;
   hdr.SetAction ();
@@ -1682,6 +1722,8 @@ DmgStaWifiMac::SendChannelMeasurementReport (Mac48Address to, uint8_t token, Cha
 void
 DmgStaWifiMac::StartRelayDiscovery (Mac48Address stationAddress)
 {
+std::cout << "sally test dmgstamac -> StartRelayDiscovery, stationAddress=" << stationAddress << std::endl;
+
   NS_LOG_FUNCTION (this << stationAddress);
   /* Establish Relay with specific DMG STA */
   InformationMapIterator it = m_informationMap.find (stationAddress);
@@ -1725,6 +1767,8 @@ void
 DmgStaWifiMac::SendRelaySearchRequest (uint8_t token, uint16_t destinationAid)
 {
   NS_LOG_FUNCTION (this << token << destinationAid);
+std::cout << "sally test dmgstamac -> SendRelaySearchRequest, token=" << token << ", destinationAid=" << destinationAid << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (GetBssid ());
@@ -1754,6 +1798,8 @@ void
 DmgStaWifiMac::SendRlsRequest (Mac48Address to, uint8_t token, uint16_t sourceAid, uint16_t relayAid, uint16_t destinationAid)
 {
   NS_LOG_FUNCTION (this << to << token << sourceAid << relayAid << destinationAid);
+std::cout << "sally test dmgstamac -> SendRlsRequest, to=" << to << ", token=" << token << ", sourceAid=" << sourceAid << ", relayAid=" << relayAid << ", destinationAid=" << destinationAid << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (to);
@@ -1796,6 +1842,8 @@ void
 DmgStaWifiMac::SendRlsResponse (Mac48Address to, uint8_t token, uint16_t destinationStatus, uint16_t relayStatus)
 {
   NS_LOG_FUNCTION (this << token);
+std::cout << "sally test dmgstamac -> SendRlsResponse, to=" << to << ", token=" << token << ", destinationStatus=" << destinationStatus << ", relayStatus=" << relayStatus << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (to);
@@ -1826,6 +1874,8 @@ void
 DmgStaWifiMac::SendRlsAnnouncment (Mac48Address to, uint16_t destination_aid, uint16_t relay_aid, uint16_t source_aid)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgstamac -> SendRlsAnnouncment, to=" << to << ", destination_aid=" << destination_aid << ", relay_aid=" << relay_aid << ", source_aid=" << source_aid << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (to);
@@ -1857,6 +1907,8 @@ void
 DmgStaWifiMac::SendRelayTeardown (Mac48Address to, uint16_t sourceAid, uint16_t destinationAid, uint16_t relayAid)
 {
   NS_LOG_FUNCTION (this << to << sourceAid << destinationAid << relayAid);
+std::cout << "sally test dmgstamac -> SendRelayTeardown, to=" << to << ", sourceAid=" << sourceAid << ", destinationAid=" << destinationAid << ", relayAid=" << relayAid << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (to);
@@ -1887,6 +1939,8 @@ void
 DmgStaWifiMac::RemoveRelayEntry (uint16_t sourceAid, uint16_t destinationAid)
 {
   NS_LOG_FUNCTION (this << sourceAid << destinationAid);
+std::cout << "sally test dmgstamac -> RemoveRelayEntry, sourceAid=" << sourceAid << ", destinationAid=" << destinationAid << std::endl;
+
   REDS_PAIR redsPair = std::make_pair (sourceAid, destinationAid);
   RELAY_LINK_MAP_ITERATOR it = m_relayLinkMap.find (redsPair);
   if (it != m_relayLinkMap.end ())
@@ -1906,6 +1960,8 @@ DmgStaWifiMac::TeardownRelay (Mac48Address to, Mac48Address destinationAddress,
                               uint16_t sourceAid, uint16_t destinationAid, uint16_t relayAid)
 {
   NS_LOG_FUNCTION (this << to << destinationAddress << sourceAid << destinationAid << relayAid);
+std::cout << "sally test dmgstamac -> TeardownRelay, to=" << to << ", destinationAddress=" << destinationAddress << ", sourceAid=" << sourceAid << ", destinationAid=" << destinationAid << ", relayAid=" << relayAid << std::endl;
+
   RemoveRelayEntry (sourceAid, destinationAid);
   SendRelayTeardown (to, sourceAid, destinationAid, relayAid);
   SendRelayTeardown (destinationAddress, sourceAid, destinationAid, relayAid);
@@ -1932,6 +1988,7 @@ DmgStaWifiMac::GetMultiBandElement (void) const
   multiband->SetBssID (GetBssid ());
   multiband->SetConnectionCapability (1);     /* AP */
   multiband->SetFstSessionTimeout (1);
+std::cout << "sally test dmgstamac -> GetMultiBandElement, multiband=" << multiband << std::endl;
   return multiband;
 }
 
@@ -1939,6 +1996,8 @@ void
 DmgStaWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
   NS_LOG_FUNCTION (this << packet << hdr);
+std::cout << "sally test dmgstamac -> Receive, hdr=" << *hdr << std::endl;
+
   if (hdr->GetAddr3 () == GetAddress ())
     {
       NS_LOG_LOGIC ("packet sent by us.");
@@ -2525,13 +2584,14 @@ DmgStaWifiMac::GetDmgCapabilities (void) const
   capabilities->SetAmpduParameters (5, 0);      /* Hardcoded Now (Maximum A-MPDU + No restriction) */
   capabilities->SetSupportedMCS (12, 24, 12 ,24, false, true); /* LP SC is not supported yet */
   capabilities->SetAppduSupported (false);      /* Currently A-PPDU Agregation is not supported */
-
+std::cout << "sally test dmgstamac -> GetDmgCapabilities, capabilities=" << capabilities << std::endl;
   return capabilities;
 }
 
 void
 DmgStaWifiMac::SetState (MacState value)
 {
+std::cout << "sally test dmgstamac -> SetState, value=" << value << std::endl;
   enum MacState previousState = m_state;
   m_state = value;
   if (value == ASSOCIATED && previousState != ASSOCIATED)

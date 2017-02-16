@@ -140,6 +140,7 @@ void
 DmgApWifiMac::SetAddress (Mac48Address address)
 {
   NS_LOG_FUNCTION (this << address);
+std::cout << "sally test dmgapmac -> SetAddress, address=" << address << std::endl;
   // As an AP, our MAC address is also the BSSID. Hence we are
   // overriding this function and setting both in our parent class.
   RegularWifiMac::SetAddress (address);
@@ -150,6 +151,7 @@ Time
 DmgApWifiMac::GetBeaconInterval(void) const
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> GetBeaconInterval" << std::endl;
   return m_beaconInterval;
 }
 
@@ -165,6 +167,7 @@ Time
 DmgApWifiMac::GetBeaconTransmissionInterval (void) const
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> GetBeaconTransmissionInterval" << std::endl;
   return m_btiDuration;
 }
 
@@ -172,6 +175,7 @@ void
 DmgApWifiMac::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> stationManager)
 {
   NS_LOG_FUNCTION (this << stationManager);
+std::cout << "sally test dmgapmac -> SetWifiRemoteStationManager" << std::endl;
   m_beaconDca->SetWifiRemoteStationManager (stationManager);
   DmgWifiMac::SetWifiRemoteStationManager (stationManager);
 }
@@ -181,7 +185,7 @@ DmgApWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 {
   NS_LOG_FUNCTION (this << &linkUp);
   RegularWifiMac::SetLinkUpCallback (linkUp);
-
+std::cout << "sally test dmgapmac -> SetLinkUpCallback" << std::endl;
   // The approach taken here is that, from the point of view of an AP,
   // the link is always up, so we immediately invoke the callback if
   // one is set.
@@ -204,6 +208,7 @@ void
 DmgApWifiMac::ForwardDown (Ptr<const Packet> packet, Mac48Address from, Mac48Address to)
 {
   NS_LOG_FUNCTION (this << packet << from << to);
+std::cout << "sally test dmgapmac -> ForwardDown, from=" << from << ", to=" << to << std::endl;
   // If we are not a QoS AP then we definitely want to use AC_BE to
   // transmit the packet. A TID of zero will map to AC_BE (through \c
   // QosUtilsMapTidToAc()), so we use that as our default here.
@@ -267,6 +272,7 @@ void
 DmgApWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
   NS_LOG_FUNCTION (this << packet << to);
+std::cout << "sally test dmgapmac -> Enqueue, to=" << to << std::endl;
   // We're sending this packet with a from address that is our own. We
   // get that address from the lower MAC and make use of the
   // from-spoofing Enqueue() method to avoid duplicated code.
@@ -277,6 +283,7 @@ bool
 DmgApWifiMac::SupportsSendFrom (void) const
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> SupportsSendFrom" << std::endl;
   return true;
 }
 
@@ -395,6 +402,7 @@ DmgApWifiMac::GetNextDmgAtiElement (void) const
   Time atiStart = m_btiDuration + GetMbifs () + m_abftDuration;
   ati->SetStartTime (static_cast<uint32_t> (atiStart.GetMicroSeconds ()));
   ati->SetAtiDuration (static_cast<uint16_t> (m_atiDuration.GetMicroSeconds ()));  /* Microseconds*/
+std::cout << "sally test dmgapmac -> GetNextDmgAtiElement, ati=" << ati << std::endl;
   return ati;
 }
 
@@ -403,6 +411,7 @@ DmgApWifiMac::GetExtendedScheduleElement (void) const
 {
   Ptr<ExtendedScheduleElement> scheduleElement = Create<ExtendedScheduleElement> ();
   scheduleElement->SetAllocationFieldList (m_allocationList);
+std::cout << "sally test dmgapmac -> GetExtendedScheduleElement" << std::endl;
   return scheduleElement;
 }
 
@@ -410,6 +419,7 @@ void
 DmgApWifiMac::CleanupAllocations (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> CleanupAllocations" << std::endl;
   AllocationField allocation;
   for(AllocationFieldList::iterator iter = m_allocationList.begin (); iter != m_allocationList.end ();)
     {
@@ -430,6 +440,7 @@ DmgApWifiMac::AllocateCbapPeriod (bool staticAllocation,
                                   uint32_t allocationStart, uint16_t blockDuration)
 {
   NS_LOG_FUNCTION (this << staticAllocation << allocationStart << blockDuration);
+std::cout << "sally test dmgapmac -> AllocateCbapPeriod, staticAllocation=" << staticAllocation << ", allocationStart=" << allocationStart << ", blockDuration=" << blockDuration << std::endl;
   AddAllocationPeriod (0, CBAP_ALLOCATION, staticAllocation, AID_BROADCAST, AID_BROADCAST, allocationStart, blockDuration);
   return (allocationStart + blockDuration);
 }
@@ -583,6 +594,7 @@ std::cout << "sally test dmgapmac -> SendOneDMGBeacon, sectorID=" << sectorID <<
 Time
 DmgApWifiMac::GetBTIRemainingTime (void) const
 {
+std::cout << "sally test dmgapmac -> GetBTIRemainingTime" << std::endl;
   return m_btiRemaining - (Simulator::Now () - m_beaconTransmitted);
 }
 
@@ -823,6 +835,7 @@ void
 DmgApWifiMac::BrpSetupCompleted (Mac48Address address)
 {
   NS_LOG_FUNCTION (this << address);
+std::cout << "sally test dmgapmac -> BrpSetupCompleted, address=" << address << std::endl;
   /* Initiate BRP Transaction */
   InitiateBrpTransaction (address);
 }
@@ -831,6 +844,7 @@ void
 DmgApWifiMac::DoBrpSetupSubphase (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> DoBrpSetupSubphase" << std::endl;
   for (STATION_BRP_MAP::iterator iter = m_stationBrpMap.begin (); iter != m_stationBrpMap.end (); iter++)
     {
       if (iter->second == true)
@@ -847,6 +861,7 @@ void
 DmgApWifiMac::NotifyBrpPhaseCompleted (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> NotifyBrpPhaseCompleted" << std::endl;
   DoBrpSetupSubphase ();
 }
 
@@ -972,7 +987,7 @@ DmgApWifiMac::TxFailed (const WifiMacHeader &hdr)
 {
   NS_LOG_FUNCTION (this);
   RegularWifiMac::TxFailed (hdr);
-
+std::cout << "sally test dmgapmac -> TxFailed, hdr=" << hdr << std::endl;
   if (hdr.IsAssocResp () && m_stationManager->IsWaitAssocTxOk (hdr.GetAddr1 ()))
     {
       NS_LOG_DEBUG ("assoc failed with sta=" << hdr.GetAddr1 ());
@@ -992,6 +1007,7 @@ DmgApWifiMac::GetMultiBandElement (void) const
   multiband->SetBssID (GetAddress ());
   multiband->SetConnectionCapability (1);     /* AP */
   multiband->SetFstSessionTimeout (1);
+std::cout << "sally test dmgapmac -> GetMultiBandElement" << std::endl;
   return multiband;
 }
 
@@ -1290,6 +1306,7 @@ void
 DmgApWifiMac::DeaggregateAmsduAndForward (Ptr<Packet> aggregatedPacket, const WifiMacHeader *hdr)
 {
   NS_LOG_FUNCTION (this << aggregatedPacket << hdr);
+std::cout << "sally test dmgapmac -> DeaggregateAmsduAndForward" << std::endl;
   MsduAggregator::DeaggregatedMsdus packets =
   MsduAggregator::Deaggregate (aggregatedPacket);
 
@@ -1313,6 +1330,7 @@ void
 DmgApWifiMac::DoInitialize (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test dmgapmac -> DoInitialize" << std::endl;
   m_beaconDca->Initialize ();
   m_beaconEvent.Cancel ();
 
