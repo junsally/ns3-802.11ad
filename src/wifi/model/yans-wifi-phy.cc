@@ -270,9 +270,12 @@ YansWifiPhy::StartReceivePreambleAndHeader (Ptr<Packet> packet,
 {
   //This function should be later split to check separately whether plcp preamble and plcp header can be successfully received.
   //Note: plcp preamble reception is not yet modeled.
-  NS_LOG_FUNCTION (this << packet << rxPowerDbm << txVector.GetMode () << preamble << (uint32_t)mpdutype);
+  NS_LOG_FUNCTION (this << packet << rxPowerDbm << txVector.GetMode () << preamble << (uint32_t)mpdutype << Simulator::Now());
   AmpduTag ampduTag;
-  Time totalDuration = rxDuration + txVector.GetTrainngFieldLength () * TRNUnit;
+  Time totalDuration = rxDuration + txVector.GetTrainngFieldLength () * TRNUnit; 
+
+  NS_LOG_DEBUG ("RxDuration=" << rxDuration << ", TotalDuration=" << totalDuration << ", TRN=" << txVector.GetTrainngFieldLength ());
+
   rxPowerDbm += GetRxGain ();
   m_rxDuration = totalDuration; // Duraion of the last frame
   double rxPowerW = DbmToW (rxPowerDbm);
@@ -653,7 +656,7 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
 {
   NS_LOG_FUNCTION (this << txVector.GetMode () << rxPowerDbm << fieldsRemaining);
   double rxPowerW = DbmToW (rxPowerDbm);
-  if (m_plcpSuccess)
+  if (m_plcpSuccess && m_state->IsStateRx ())
     {
 std::cout << "sally test m_plcpSuccess8: " << m_plcpSuccess << std::endl;
       /* Add Interference event for TRN field */
