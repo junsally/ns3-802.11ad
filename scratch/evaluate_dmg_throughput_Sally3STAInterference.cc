@@ -43,7 +43,7 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 5.0;                        /* The distance between transmitter and receiver in meters. */
+  double distance = 1.0;                        /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
@@ -149,8 +149,8 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-      wifiPhy.Set ("TxPowerStart", DoubleValue (10.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (10.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (50.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (50.0));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));
@@ -207,14 +207,14 @@ main(int argc, char *argv[])
 
       NetDeviceContainer staDevices;
 //      staDevice = wifi.Install (wifiPhy, wifiMac, staWifiNode);
-      staDevices.Add (wifi.Install (wifiPhy, wifiMac, sinkWifiNode));      
+      staDevices.Add (wifi.Install (wifiPhy, wifiMac, srcWifiNode));      
     
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0.0) );
-      staDevices.Add (wifi.Install (wifiPhy, wifiMac, srcWifiNode));
+//      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0.0) );
+      staDevices.Add (wifi.Install (wifiPhy, wifiMac, sinkWifiNode));
 
 
-      wifiPhy.Set ("TxPowerStart", DoubleValue (2.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (2.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (30.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (30.0));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       staDevices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
 
@@ -250,15 +250,13 @@ main(int argc, char *argv[])
 
       /* Install Simple UDP Server on the access point */
 //      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
-      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (staInterface.GetAddress(1), 9999));
+      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
       ApplicationContainer sinkApps = sinkHelper.Install (sinkWifiNode);
+      sinkApps.Add (sinkHelper.Install (apWifiNode));
 
-      PacketSinkHelper sinkHelperAp (socketType, InetSocketAddress (apInterface.GetAddress(0), 9999));
-      sinkApps.Add (sinkHelperAp.Install (apWifiNode));
-
-      Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApps.Get (0));
+      Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApps.Get(0));
       sinkApps.Start (Seconds (0.0));
-    
+//   std::cout << "sally test sink, sinkApps.Get(0)=" << sinkApps.Get (0) << ", sinkApps.Get(1)=" << sinkApps.Get (1) << std::endl;
 
       /* Install TCP/UDP Transmitter on the station */
       Address dest (InetSocketAddress (staInterface.GetAddress (1), 9999));
