@@ -79,6 +79,7 @@ PacketSink::~PacketSink()
 uint64_t PacketSink::GetTotalRx () const
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test GetTotalRx, m_totalRx=" << m_totalRx << std::endl;
   return m_totalRx;
 }
 
@@ -177,6 +178,7 @@ void PacketSink::HandleRead (Ptr<Socket> socket)
           break;
         }
       m_totalRx += packet->GetSize ();
+std::cout << "sally test m_totalRx change in HandleRead function, m_totalRx=" << m_totalRx << ", packet->GetSize()=" << packet->GetSize () << std::endl;
       if (InetSocketAddress::IsMatchingType (from))
         {
           NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds ()
