@@ -10,6 +10,8 @@
 #include "ns3/wifi-module.h"
 #include "common-functions.h"
 #include <string>
+#include <stdlib.h>
+#include <cmath>
 
 
 /**
@@ -50,6 +52,7 @@ main(int argc, char *argv[])
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
   std::string channelState = "a";
   double TimeOffset = 5.0;        
+  double theta = 180;
 
   /** MCS List **/
   /* SC PHY */
@@ -94,6 +97,7 @@ main(int argc, char *argv[])
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
   cmd.AddValue ("TimeOffset", "Time offset between signal and interference in microseconds", TimeOffset);
+  cmd.AddValue ("theta", "the angle of interference station and source station to sink station in x-y plane, range from 0 to 360", theta);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -223,9 +227,9 @@ main(int argc, char *argv[])
       MobilityHelper mobility;
       Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
       positionAlloc->Add (Vector (0.0, 0.0, 0.0));
-      positionAlloc->Add (Vector (distance, distance, 0.0));
-      positionAlloc->Add (Vector (distance, 0.0, 0.0));
-      positionAlloc->Add (Vector (distance, -distance, 0.0));
+      positionAlloc->Add (Vector (2*distance, distance, 0.0));
+      positionAlloc->Add (Vector (2*distance, 0.0, 0.0));
+      positionAlloc->Add (Vector (2*distance+distance*sin(theta*M_PI/180), distance*cos(theta*M_PI/180), 0.0));
 
       mobility.SetPositionAllocator (positionAlloc);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");

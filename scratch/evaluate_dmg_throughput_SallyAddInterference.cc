@@ -34,44 +34,6 @@ Ptr<Node> apWifiNode;
 Ptr<Node> staWifiNode;
 Ptr<Node> intfWifiNode;
 
-static inline std::string PrintReceivedPacket (Ptr<Socket> socket)                                    
-{                                                                                                     
-  Address addr;                                                                                       
-                                                                                                      
-  std::ostringstream oss;                                                                             
-                                                                                                      
-  while (socket->Recv ())                                                                             
-    {                                                                                                 
-      socket->GetSockName (addr);                                                                     
-      InetSocketAddress iaddr = InetSocketAddress::ConvertFrom (addr);                                
-                                                                                                      
-      oss << "Received one packet!  Socket: " << iaddr.GetIpv4 () << " port: " << iaddr.GetPort ();   
-    }                                                                                                 
-                                                                                                      
-  return oss.str ();                                                                                  
-}                                                                                                     
-                                                                                                      
-static void ReceivePacket (Ptr<Socket> socket)                                                        
-{                                                                                                     
-  NS_LOG_UNCOND (PrintReceivedPacket (socket));                                                       
-std::cout << PrintReceivedPacket (socket) << std::endl;                                               
-}                                                                                                     
-                                                                                                      
-static void GenerateTraffic (Ptr<Socket> socket, uint32_t pktSize,                                    
-                             uint32_t pktCount, Time pktInterval )                                    
-{                                                                                                     
-  if (pktCount > 0)                                                                                   
-    {                                                                                                 
-      socket->Send (Create<Packet> (pktSize));                                                        
-      Simulator::Schedule (pktInterval, &GenerateTraffic,                                             
-                           socket, pktSize,pktCount-1, pktInterval);                                  
-    }                                                                                                 
-  else                                                                                                
-    {                                                                                                 
-      socket->Close ();                                                                               
-    }                                                                                                 
-}                   
-
 
 int
 main(int argc, char *argv[])
@@ -91,17 +53,6 @@ main(int argc, char *argv[])
   std::string channelState = "a";               /* channel state for propagation loss model, can be n, l, o and a */
   double theta = 180;                            /* the angle to x axis for interference station in x-y plane */
 
-
-  double Prss = -80;  // -dBm
-  double Irss = -95;  // -dBm
-  double delta = 0;  // microseconds
-  uint32_t PpacketSize = 1000; // bytes
-  uint32_t IpacketSize = 1000; // bytes
-
-  uint32_t numPackets = 1;
-  double interval = 1.0; // seconds
-  double startTime = 1.0; // seconds
-  double offset = 91;  // This is a magic number used to set the 
 
 
   /** MCS List **/
@@ -147,27 +98,14 @@ main(int argc, char *argv[])
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
   cmd.AddValue ("theta", "the angle of interference station to x axis in x-y plane, range from 0 to 180", theta);
-
-  cmd.AddValue ("Prss", "Intended primary received signal strength (dBm)", Prss);
-  cmd.AddValue ("Irss", "Intended interfering received signal strength (dBm)", Irss);
-  cmd.AddValue ("delta", "time offset (microseconds) for interfering signal", delta);
-  cmd.AddValue ("PpacketSize", "size of application packet sent", PpacketSize);
-  cmd.AddValue ("IpacketSize", "size of interfering packet sent", IpacketSize);
-
   cmd.Parse (argc, argv);
 
 
-  // Convert to time object
-  Time interPacketInterval = Seconds (interval);
 
-  // disable fragmentation for frames below 2200 bytes
-  Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("2200"));
-  // turn off RTS/CTS for frames below 2200 bytes
-  Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("2200"));
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
-//  Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("999999"));
-//  Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("999999"));
+  Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("999999"));
+  Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("999999"));
 
   /*** Configure TCP Options ***/
   /* Select TCP variant */
@@ -218,15 +156,15 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-//      wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
-//      wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
-//      wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
-//      wifiPhy.Set ("TxGain", DoubleValue (0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (50.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (50.0));
+      wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
+      wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
-//      wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (0.0));
-//      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
+      wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
+      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-99));
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-99 + 3));
       /* Set the phy layer error model */
 //      wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -263,22 +201,11 @@ main(int argc, char *argv[])
                        "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
                        "ATIDuration", TimeValue (MicroSeconds (300)));
 
-/*      wifiMac.SetType ("ns3::DmgStaWifiMac",
-                       "Ssid", SsidValue (ssid),
-                       "ActiveProbing", BooleanValue (false),
-                       "BE_MaxAmpduSize", UintegerValue (262143), //Enable A-MPDU with the highest maximum size allowed by the standard
-                       "BE_MaxAmsduSize", UintegerValue (7935),
-                       "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
-*/
 
       NetDeviceContainer apDevice;
       apDevice = wifi.Install (wifiPhy, wifiMac, apWifiNode);
 
 
-      // This will disable these sending devices from detecting a signal 
-      // so that they do not backoff
-//      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0.0) );
-      wifiPhy.Set ("TxGain", DoubleValue (offset + Prss) );
       wifiMac.SetType ("ns3::DmgStaWifiMac",
                        "Ssid", SsidValue (ssid),
                        "ActiveProbing", BooleanValue (false),
@@ -288,8 +215,6 @@ main(int argc, char *argv[])
 
       NetDeviceContainer staDevices;
       staDevices.Add (wifi.Install (wifiPhy, wifiMac, staWifiNode));
-
-      wifiPhy.Set ("TxGain", DoubleValue (offset + Irss) );
       staDevices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
 
 
@@ -311,14 +236,12 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
       stack.Install (wifiNodes);
 
       Ipv4AddressHelper address;
-      address.SetBase ("10.1.1.0", "255.255.255.0");
+      address.SetBase ("10.0.0.0", "255.255.255.0");
       Ipv4InterfaceContainer apInterface;
       apInterface = address.Assign (apDevice);
       Ipv4InterfaceContainer staInterface;
       staInterface = address.Assign (staDevices);
-/*      Ipv4InterfaceContainer intfInterface;
-      intfInterface = address.Assign (intfDevice);
-*/
+
       /* Populate routing table */
       Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
@@ -328,7 +251,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
 
 
-  TypeId tidSoc = TypeId::LookupByName ("ns3::UdpSocketFactory");
+/*  TypeId tidSoc = TypeId::LookupByName ("ns3::UdpSocketFactory");
   Ptr<Socket> recvSink = Socket::CreateSocket (apWifiNode, tidSoc);
   InetSocketAddress local = InetSocketAddress (Ipv4Address ("10.1.1.1"), 80);
   recvSink->Bind (local);
@@ -345,20 +268,20 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
   InetSocketAddress interferingAddr = InetSocketAddress (Ipv4Address ("255.255.255.255"), 49000);
   interferer->SetAllowBroadcast (true);
   interferer->Connect (interferingAddr);
-
+*/
 
 
 
 
       /* Install Simple UDP Server on the access point */
-//      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
+      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
 //      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (apInterface.GetAddress (0), 9999));
-/*      ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
+      ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
       Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApp.Get (0));
       sinkApp.Start (Seconds (0.0));
-*/
+
       /* Install TCP/UDP Transmitter on the station */
-/*      Address dest (InetSocketAddress (apInterface.GetAddress (0), 9999));
+      Address dest (InetSocketAddress (apInterface.GetAddress (0), 9999));
       ApplicationContainer srcApp;
       if (applicationType == "onoff")
         {
@@ -379,7 +302,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
 
       srcApp.Start (Seconds (1.0));
 
-*/
+
       if (pcapTracing)
         {
           wifiPhy.SetPcapDataLinkType (YansWifiPhyHelper::DLT_IEEE802_11_RADIO);
@@ -387,23 +310,13 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
           wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevices, false);
         }
 
-  NS_LOG_UNCOND ("Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss << " dBm at time offset=" << delta << " ms");
-std::cout << "Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss << " dBm at time offset=" << delta << " ms" << std::endl;
-
-  Simulator::ScheduleWithContext (source->GetNode ()->GetId (),
-                                  Seconds (startTime), &GenerateTraffic,
-                                  source, PpacketSize, numPackets, interPacketInterval);
-
-  Simulator::ScheduleWithContext (interferer->GetNode ()->GetId (),
-                                  Seconds (startTime + delta/1000000.0), &GenerateTraffic,
-                                  interferer, IpacketSize, numPackets, interPacketInterval);
 
 
       Simulator::Stop (Seconds (simulationTime));
       Simulator::Run ();
 
       /* Calculate Throughput */
-  //    cout << "SMCS" << mcs.str () << '\t' << sink->GetTotalRx () * (double) 8/1e6 << endl;
+      cout << "SMCS" << mcs.str () << '\t' << sink->GetTotalRx () * (double) 8/1e6 << endl;
 
       Simulator::Destroy ();
     }

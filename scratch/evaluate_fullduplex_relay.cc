@@ -254,8 +254,8 @@ main (int argc, char *argv[])
   /* Nodes will be added to the channel we set up earlier */
   wifiPhy.SetChannel (wifiChannel.Create ());
   /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-  wifiPhy.Set ("TxPowerStart", DoubleValue (10.0));
-  wifiPhy.Set ("TxPowerEnd", DoubleValue (10.0));
+  wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
+  wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
   wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
   wifiPhy.Set ("TxGain", DoubleValue (0));
   wifiPhy.Set ("RxGain", DoubleValue (0));
