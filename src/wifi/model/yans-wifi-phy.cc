@@ -656,7 +656,7 @@ YansWifiPhy::StartReceiveTrnField (WifiTxVector txVector, double rxPowerDbm, uin
 {
   NS_LOG_FUNCTION (this << txVector.GetMode () << rxPowerDbm << fieldsRemaining);
   double rxPowerW = DbmToW (rxPowerDbm);
-  if (m_plcpSuccess && m_state->IsStateRx ())
+  if ((m_plcpSuccess && m_state->IsStateRx ()) || rxPowerW > GetEdThresholdW ()) // sally add one condition
     {
 std::cout << "sally test m_plcpSuccess8: " << m_plcpSuccess << std::endl;
       /* Add Interference event for TRN field */
