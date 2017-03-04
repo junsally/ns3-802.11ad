@@ -310,6 +310,7 @@ DmgWifiMac::GetCurrentAllocation (void) const
 void
 DmgWifiMac::StartContentionPeriod (AllocationID allocationID, Time contentionDuration)
 {
+std::cout << "sally test DmgWifiMac -> StartContentionPeriod, allocationID=" << allocationID << ", contentionDuration=" << contentionDuration << std::endl;
   NS_LOG_FUNCTION (this << contentionDuration);
   m_currentAllocation = CBAP_ALLOCATION;
   /* Restore previously suspended transmission */
@@ -329,6 +330,7 @@ void
 DmgWifiMac::EndContentionPeriod (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test DmgWifiMac -> EndContentionPeriod" << std::endl;
   m_dcfManager->DisableChannelAccess ();
   /* Signal Management DCA to suspend current transmission */
   m_dca->EndCurrentContentionPeriod ();
@@ -347,6 +349,7 @@ DmgWifiMac::EndContentionPeriod (void)
 void
 DmgWifiMac::StartServicePeriod (AllocationID allocationID, Time length, uint8_t peerAid, Mac48Address peerAddress, bool isSource)
 {
+std::cout << "sally test DmgWifiMac -> StartServicePeriod, allocationID=" << allocationID << ", length=" << length << ", peerAid=" << peerAid << ", peerAddress=" << peerAddress << "isSource=" << isSource << std::endl;
   NS_LOG_FUNCTION (this << length << uint32_t (peerAid) << peerAddress << isSource);
   m_currentAllocationID = allocationID;
   m_currentAllocation = SERVICE_PERIOD_ALLOCATION;
@@ -368,6 +371,7 @@ void
 DmgWifiMac::ResumeServicePeriodTransmission (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test DmgWifiMac -> ResumeServicePeriodTransmission" << std::endl;
   NS_ASSERT (m_currentAllocation == SERVICE_PERIOD_ALLOCATION);
   m_currentAllocationLength = GetRemainingAllocationTime ();
   m_sp->ResumeTransmission (m_currentAllocationLength);
@@ -377,6 +381,7 @@ void
 DmgWifiMac::SuspendServicePeriodTransmission (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test DmgWifiMac -> SuspendServicePeriodTransmission" << std::endl;
   NS_ASSERT (m_currentAllocation == SERVICE_PERIOD_ALLOCATION);
   m_sp->DisableChannelAccess ();
   m_suspendedPeriodDuration = GetRemainingAllocationTime ();
@@ -386,6 +391,7 @@ void
 DmgWifiMac::EndServicePeriod (void)
 {
   NS_LOG_FUNCTION (this);
+std::cout << "sally test DmgWifiMac -> EndServicePeriod" << std::endl;
   NS_ASSERT (m_currentAllocation == SERVICE_PERIOD_ALLOCATION);
   m_servicePeriodEndedCallback (GetAddress (), m_peerStationAddress);
   m_sp->DisableChannelAccess ();
@@ -402,6 +408,7 @@ void
 DmgWifiMac::MapTxSnr (Mac48Address address, SECTOR_ID sectorID, ANTENNA_ID antennaID, double snr)
 {
   NS_LOG_FUNCTION (this << address << uint (sectorID) << uint (antennaID) << snr);
+std::cout << "sally test DmgWifiMac -> MapTxSnr, address=" << address << ", sectorID=" << sectorID << ", antennaID=" << antennaID << ", snr=" << snr << std::endl;
   STATION_SNR_PAIR_MAP::iterator it = m_stationSnrMap.find (address);
   if (it != m_stationSnrMap.end ())
     {
@@ -424,6 +431,7 @@ DmgWifiMac::MapTxSnr (Mac48Address address, SECTOR_ID sectorID, ANTENNA_ID anten
 void
 DmgWifiMac::MapRxSnr (Mac48Address address, SECTOR_ID sectorID, ANTENNA_ID antennaID, double snr)
 {
+std::cout << "sally test DmgWifiMac -> MapRxSnr, address=" << address << ", sectorID=" << sectorID << ", antennaID=" << antennaID << ", snr=" << snr << std::endl;
   STATION_SNR_PAIR_MAP::iterator it = m_stationSnrMap.find (address);
   if (it != m_stationSnrMap.end ())
     {
@@ -556,6 +564,7 @@ void
 DmgWifiMac::SteerAntennaToward (Mac48Address address)
 {
   NS_LOG_FUNCTION (this << address);
+std::cout << "sally test DmgWifiMac -> SteerAntennaToward, address=" << address << std::endl;
   STATION_ANTENNA_CONFIG_MAP::iterator it = m_bestAntennaConfig.find (address);
   if (it != m_bestAntennaConfig.end ())
     {
@@ -567,6 +576,7 @@ DmgWifiMac::SteerAntennaToward (Mac48Address address)
       m_phy->GetDirectionalAntenna ()->SetCurrentTxAntennaID (antennaConfigTx.second);
       NS_LOG_DEBUG ("Change Transmit Antenna Sector Config to SectorID=" << uint32_t (antennaConfigTx.first)
                     << ", AntennaID=" << uint32_t (antennaConfigTx.second));
+std::cout << "sally test DmgWifiMac -> SteerAntennaToward, Change Transmit Antenna Sector Config to SectorID=" << uint32_t (antennaConfigTx.first) << ", AntennaID=" << uint32_t (antennaConfigTx.second) << std::endl;
 
       /* Change Rx Antenna Configuration */
       if ((antennaConfigRx.first != NO_ANTENNA_CONFIG) && (antennaConfigRx.second != NO_ANTENNA_CONFIG))
@@ -576,9 +586,11 @@ DmgWifiMac::SteerAntennaToward (Mac48Address address)
           m_phy->GetDirectionalAntenna ()->SetCurrentRxAntennaID (antennaConfigRx.second);
           NS_LOG_DEBUG ("Change Receive Antenna Sector Config to SectorID=" << uint32_t (antennaConfigRx.first)
                         << ", AntennaID=" << uint32_t (antennaConfigRx.second));
+std::cout << "sally test DmgWifiMac -> SteerAntennaToward, Change Receive Antenna Sector Config to SectorID=" << uint32_t (antennaConfigRx.first) << ", AntennaID=" << uint32_t (antennaConfigRx.second) << std::endl;
         }
       else
         {
+std::cout << "sally test DmgWifiMac -> SteerAntennaToward, set in omni receiving mode" << std::endl;
           m_phy->GetDirectionalAntenna ()->SetInOmniReceivingMode ();
         }
     }
@@ -656,6 +668,8 @@ DmgWifiMac::SendBrpFrame (Mac48Address receiver, BRP_Request_Field &requestField
                           bool requestBeamRefinement, PacketType packetType, uint8_t trainingFieldLength)
 {
   NS_LOG_FUNCTION (this << receiver);
+std::cout << "sally test DmgWifiMac -> SendBrpFrame, receiver=" << receiver << ", requestBeamRefinement=" << requestBeamRefinement << ", packetType=" << packetType << ", trainingFieldLength=" << trainingFieldLength << std::endl;
+
   WifiMacHeader hdr;
   hdr.SetActionNoAck ();
   hdr.SetAddr1 (receiver);
@@ -693,6 +707,7 @@ DmgWifiMac::SendBrpFrame (Mac48Address receiver, BRP_Request_Field &requestField
   NS_LOG_INFO ("Sending BRP Frame to " << receiver << " at " << Simulator::Now ()
                << " with " << uint32_t (m_phy->GetDirectionalAntenna ()->GetCurrentTxSectorID ())
                << " " << uint32_t (m_phy->GetDirectionalAntenna ()->GetCurrentTxAntennaID ()));
+std::cout << "sally test DmgWifiMac -> SendBrpFrame, Sending BRP Frame to receiver=" << receiver << " at " << Simulator::Now () << " with current TX SectorID " << uint32_t (m_phy->GetDirectionalAntenna ()->GetCurrentTxSectorID ()) << " current tx antennaID " << uint32_t (m_phy->GetDirectionalAntenna ()->GetCurrentTxAntennaID ()) << std::endl;
 
   m_dmgAtiDca->Queue (packet, hdr);
 }
@@ -703,6 +718,7 @@ DmgWifiMac::InitiateBrpSetupSubphase (Mac48Address receiver)
 {
   NS_LOG_FUNCTION (this);
   NS_LOG_LOGIC ("Initiating BRP Setup Subphase with " << receiver << " at " << Simulator::Now ());
+std::cout << "sally test DmgWifiMac -> InitiateBrpSetupSubphase, Initiating BRP Setup Subphase with " << receiver << " at " << Simulator::Now () << std::endl;
 
   /* Set flags related to the BRP Setup Phase */
   m_isBrpResponder[receiver] = false;
@@ -829,7 +845,7 @@ DmgWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
   NS_LOG_FUNCTION (this << packet << hdr);
   Mac48Address from = hdr->GetAddr2 ();
-
+std::cout << "sally test DmgWifiMac -> Receive, hdr=" << *hdr << ", from=" << from << std::endl; 
   if (hdr->IsAction () || hdr->IsActionNoAck ())
     {
       WifiActionHeader actionHdr;
@@ -1042,6 +1058,7 @@ DmgWifiMac::GetBestAntennaConfiguration (const Mac48Address stationAddress, bool
 DmgWifiMac::ANTENNA_CONFIGURATION
 DmgWifiMac::GetBestAntennaConfiguration (const Mac48Address stationAddress, bool isTxConfiguration, double &maxSnr)
 {
+std::cout << "sally test DmgWifiMac -> GetBestAntennaConfiguration, stationAddress=" << stationAddress << ", isTxConfiguration=" << isTxConfiguration << ", maxSnr=" << &maxSnr << std::endl;
   SNR_PAIR snrPair = m_stationSnrMap [stationAddress];
   SNR_MAP snrMap;
   if (isTxConfiguration)

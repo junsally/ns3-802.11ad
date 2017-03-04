@@ -919,6 +919,7 @@ ServicePeriod::EndCurrentServicePeriod (void)
 void
 ServicePeriod::StartServicePeriod (AllocationID allocationID, Mac48Address peerStation, Time servicePeriodDuration)
 {
+std::cout << "sally test ServicePeriod -> StartServicePeriod, allocationID=" << allocationID << ", peerStation=" << peerStation << ", servicePeriodDuration=" << servicePeriodDuration << std::endl;
   NS_LOG_FUNCTION (this << allocationID << peerStation << servicePeriodDuration);
   m_allocationID = allocationID;
   m_peerStation = peerStation;

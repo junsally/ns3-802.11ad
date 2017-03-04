@@ -1257,12 +1257,6 @@ std::cout << "sally test dmgstamac -> StartTransmitSectorSweep, address=" << add
   m_totalSectors = m_phy->GetDirectionalAntenna ()->GetNumberOfSectors () *
                    m_phy->GetDirectionalAntenna ()->GetNumberOfAntennas () - 1;
 
-  /* Special case for handling less number of frames in the A-BFT */
-  if (m_accessPeriod == CHANNEL_ACCESS_ABFT)
-    {
-      m_totalSectors = std::min (m_totalSectors, uint16_t (m_ssFramesPerSlot - 1));
-    }
-
   if (direction == BeamformingInitiator)
     {
       Simulator::ScheduleNow (&DmgStaWifiMac::SendIssSectorSweepFrame, this, address,
@@ -1598,13 +1592,8 @@ std::cout << "sally test dmgstamac -> FrameTxOk, hdr=" << &hdr << std::endl;
           m_totalSectors--;
           if (m_accessPeriod == CHANNEL_ACCESS_ABFT)
             {
-
-              if (m_sectorId <= m_ssFramesPerSlot)
-              {
-                  Simulator::Schedule (m_sbifs, &DmgStaWifiMac::SendSectorSweepFrame, this, hdr.GetAddr1 (),
+              Simulator::Schedule (m_sbifs, &DmgStaWifiMac::SendSectorSweepFrame, this, hdr.GetAddr1 (),
                                    BeamformingResponder, m_sectorId, m_antennaId, m_totalSectors);
-           
-              }
             }
           else
             {
