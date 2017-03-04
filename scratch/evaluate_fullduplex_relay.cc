@@ -111,6 +111,7 @@ SLSCompleted (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address,
 void
 ChannelReportReceived (Mac48Address address)
 {
+std::cout << "sally test ChannelReportReceived function in main, address=" << address << ", rdsMac->GetAddress=" << rdsMac->GetAddress () << ", dstRedsMac->GetAddress=" << dstRedsMac->GetAddress () << std::endl;
   if (rdsMac->GetAddress () == address)
     {
       std::cout << "Received Channel Measurement Response from the RDS" << std::endl;
@@ -247,7 +248,8 @@ main (int argc, char *argv[])
   /* Simple propagation delay model */
   wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
   /* Friis model with standard-specific wavelength */
-  wifiChannel.AddPropagationLoss ("ns3::FriisPropagationLossModel", "Frequency", DoubleValue (56.16e9));
+ // wifiChannel.AddPropagationLoss ("ns3::FriisPropagationLossModel", "Frequency", DoubleValue (56.16e9));
+  wifiChannel.AddPropagationLoss ("ns3::MmWavePropagationLossModel", "Frequency", DoubleValue (73e9));
 
   /**** SETUP ALL NODES ****/
   YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();

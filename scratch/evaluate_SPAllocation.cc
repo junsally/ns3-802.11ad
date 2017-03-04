@@ -10,8 +10,6 @@
 #include "ns3/wifi-module.h"
 #include "common-functions.h"
 #include <string>
-#include <stdlib.h>
-#include <cmath>
 
 
 /**
@@ -32,8 +30,6 @@ using namespace std;
 
 Ptr<Node> apWifiNode;
 Ptr<Node> staWifiNode;
-Ptr<Node> intfWifiNode;
-
 
 int
 main(int argc, char *argv[])
@@ -45,14 +41,12 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 10;                          /* The distance between transmitter and receiver in meters. */
+  double distance = 1;                        /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
-  std::string channelState = "a";               /* channel state for propagation loss model, can be n, l, o and a */
-  double theta = 180;                            /* the angle to x axis for interference station in x-y plane */
-
+  std::string channelState = "a";
 
 
   /** MCS List **/
@@ -97,11 +91,7 @@ main(int argc, char *argv[])
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
-  cmd.AddValue ("theta", "the angle of interference station to x axis in x-y plane, range from 0 to 180", theta);
   cmd.Parse (argc, argv);
-
-
-
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
   Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("999999"));
@@ -156,15 +146,15 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-      wifiPhy.Set ("TxPowerStart", DoubleValue (50.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (50.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
       wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-99));
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-99 + 3));
+      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
       /* Set the phy layer error model */
 //      wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -181,10 +171,9 @@ main(int argc, char *argv[])
 
       /* Make two nodes and set them up with the phy and the mac */
       NodeContainer wifiNodes;
-      wifiNodes.Create (3);
+      wifiNodes.Create (2);
       apWifiNode = wifiNodes.Get (0);
       staWifiNode = wifiNodes.Get (1);
-      intfWifiNode = wifiNodes.Get (2);
 
       /**** Allocate a default Adhoc Wifi MAC ****/
       /* Add a DMG upper mac */
@@ -201,10 +190,8 @@ main(int argc, char *argv[])
                        "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
                        "ATIDuration", TimeValue (MicroSeconds (300)));
 
-
       NetDeviceContainer apDevice;
       apDevice = wifi.Install (wifiPhy, wifiMac, apWifiNode);
-
 
       wifiMac.SetType ("ns3::DmgStaWifiMac",
                        "Ssid", SsidValue (ssid),
@@ -213,19 +200,14 @@ main(int argc, char *argv[])
                        "BE_MaxAmsduSize", UintegerValue (7935),
                        "QosSupported", BooleanValue (true), "DmgSupported", BooleanValue (true));
 
-      NetDeviceContainer staDevices;
-      staDevices.Add (wifi.Install (wifiPhy, wifiMac, staWifiNode));
-      staDevices.Add (wifi.Install (wifiPhy, wifiMac, intfWifiNode));
-
+      NetDeviceContainer staDevice;
+      staDevice = wifi.Install (wifiPhy, wifiMac, staWifiNode);
 
       /* Setting mobility model, Initial Position 1 meter apart */
       MobilityHelper mobility;
       Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
-      positionAlloc->Add (Vector (0.0, 0.0, 0.0)); // position for PCP/AP
-      positionAlloc->Add (Vector (distance, 0.0, 0.0)); // position for staWifiNode
-      positionAlloc->Add (Vector (2*distance*cos(theta*M_PI/180), 2*stance*sin(theta*M_PI/180), 0.0)); // position for intfWifiNode
-
-std::cout << "sally test position for interferer: " << "x=" << distance*cos(theta*M_PI/180) << ", y=" << distance*sin(theta*M_PI/180) << std::endl;
+      positionAlloc->Add (Vector (0.0, 0.0, 0.0));
+      positionAlloc->Add (Vector (distance, 0.0, 0.0));
 
       mobility.SetPositionAllocator (positionAlloc);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -240,7 +222,7 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
       Ipv4InterfaceContainer apInterface;
       apInterface = address.Assign (apDevice);
       Ipv4InterfaceContainer staInterface;
-      staInterface = address.Assign (staDevices);
+      staInterface = address.Assign (staDevice);
 
       /* Populate routing table */
       Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
@@ -248,34 +230,8 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
       /* We do not want any ARP packets */
       PopulateArpCache ();
 
-
-
-
-/*  TypeId tidSoc = TypeId::LookupByName ("ns3::UdpSocketFactory");
-  Ptr<Socket> recvSink = Socket::CreateSocket (apWifiNode, tidSoc);
-  InetSocketAddress local = InetSocketAddress (Ipv4Address ("10.1.1.1"), 80);
-  recvSink->Bind (local);
-  recvSink->SetRecvCallback (MakeCallback (&ReceivePacket));
-
-  Ptr<Socket> source = Socket::CreateSocket (staWifiNode, tidSoc);
-  InetSocketAddress remote = InetSocketAddress (Ipv4Address ("255.255.255.255"), 80);
-  source->SetAllowBroadcast (true);
-  source->Connect (remote);
-
-  // Interferer will send to a different port; we will not see a
-  // "Received packet" message
-  Ptr<Socket> interferer = Socket::CreateSocket (intfWifiNode, tidSoc);
-  InetSocketAddress interferingAddr = InetSocketAddress (Ipv4Address ("255.255.255.255"), 49000);
-  interferer->SetAllowBroadcast (true);
-  interferer->Connect (interferingAddr);
-*/
-
-
-
-
       /* Install Simple UDP Server on the access point */
       PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
-//      PacketSinkHelper sinkHelper (socketType, InetSocketAddress (apInterface.GetAddress (0), 9999));
       ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
       Ptr<PacketSink> sink = StaticCast<PacketSink> (sinkApp.Get (0));
       sinkApp.Start (Seconds (0.0));
@@ -292,26 +248,31 @@ std::cout << "sally test position for interferer: " << "x=" << distance*cos(thet
           src.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
           src.SetAttribute ("DataRate", DataRateValue (DataRate (*iter)));
 
-          srcApp = src.Install (NodeContainer(staWifiNode, intfWifiNode));
+          srcApp = src.Install (staWifiNode);
         }
       else if (applicationType == "bulk")
         {
           BulkSendHelper src (socketType, dest);
-          srcApp = src.Install (NodeContainer(staWifiNode, intfWifiNode));
+          srcApp= src.Install (staWifiNode);
         }
 
       srcApp.Start (Seconds (1.0));
-
 
       if (pcapTracing)
         {
           wifiPhy.SetPcapDataLinkType (YansWifiPhyHelper::DLT_IEEE802_11_RADIO);
           wifiPhy.EnablePcap ("Traces/AccessPoint" + mcs.str (), apDevice, false);
-          wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevices, false);
+          wifiPhy.EnablePcap ("Traces/Station" + mcs.str (), staDevice, false);
         }
+    
+//      Ptr<WifiNetDevice> apWifiNetDevice = StaticCast<WifiNetDevice> (apDevice.Get (0));
+//      Ptr<WifiNetDevice> staWifiNetDevice = StaticCast<WifiNetDevice> (staDevice.Get (0));
 
+//      Ptr<DmgApWifiMac> apWifiMac = StaticCast<DmgApWifiMac> (apWifiNetDevice->GetMac ());
+//      Ptr<DmgStaWifiMac> staWifiMac = StaticCast<DmgStaWifiMac> (staWifiNetDevice->GetMac ());
 
-
+ 
+//      Simulator::Schedule (Seconds (1.5), &DmgApWifiMac::AllocateBeamformingServicePeriod, staWifiMac->GetAssociationID (), apWifiMac->GetAssociationID (), 0, true);
       Simulator::Stop (Seconds (simulationTime));
       Simulator::Run ();
 
