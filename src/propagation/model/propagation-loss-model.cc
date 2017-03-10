@@ -958,20 +958,20 @@ MmWavePropagationLossModel::GetTypeId (void)
                                        &MmWavePropagationLossModel::GetMinLoss),
                    MakeDoubleChecker<double> ())
     .AddAttribute ("ChannelStates",
-                                                                        "'l' for LOS, 'n' for NLOS, 'o' for outage, 'a' for all",
-                                                                        StringValue ("l"), 
-                                                                        MakeStringAccessor (&MmWavePropagationLossModel::m_channelStates),
-                                                                        MakeStringChecker ())
-                .AddAttribute ("LossFixedDb",
-                                                                         "",
-                                                                         DoubleValue (0.0), 
-                                                                         MakeDoubleAccessor (&MmWavePropagationLossModel::m_lossFixedDb),
-                                                                         MakeDoubleChecker<double> ())
-                .AddAttribute ("FixedLossTst",
-                                                                         "",
-                                                                         BooleanValue (false),
-                                                                         MakeBooleanAccessor (&MmWavePropagationLossModel::m_fixedLossTst),
-                                                                         MakeBooleanChecker ())
+                   "'l' for LOS, 'n' for NLOS, 'o' for outage, 'a' for all",
+                   StringValue ("l"), 
+                   MakeStringAccessor (&MmWavePropagationLossModel::m_channelStates),
+                   MakeStringChecker ())
+    .AddAttribute ("LossFixedDb",
+                   "",
+                   DoubleValue (0.0), 
+                   MakeDoubleAccessor (&MmWavePropagationLossModel::m_lossFixedDb),
+                   MakeDoubleChecker<double> ())
+    .AddAttribute ("FixedLossTst",
+                   "",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&MmWavePropagationLossModel::m_fixedLossTst),
+                   MakeBooleanChecker ())
   ;
 
 //std::cout << "channel state: " << MmWavePropagationLossModel::m_channelStates << std::endl;
