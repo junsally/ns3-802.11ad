@@ -79,14 +79,25 @@ ErrorRateModelSensitivityOFDM::GetBerFromSinrLut (int MCSindex, double Sinr) con
   else if (sinrdB > 28)
 {std::cout << "sally test ber function: GetBerFromSinrLut - 2nd case" << std::endl;
       return sinr_ber (MCSindex, 24);} 
+  else if (sinr_ber(MCSindex, sinrdB_index) == 0)
+{std::cout << "sally test ber function: GetBerFromSinrLut - 3rd case" << std::endl;
+      return sinr_ber (MCSindex, sinrdB_index);}
+  else if (sinr_ber(MCSindex, sinrdB_index + 1) == 0)
+{
+      linearK = -300 - 10*log10 (sinr_ber(MCSindex, sinrdB_index));
+      linearB =  (sinrdB_index + 1) * 10*log10 (sinr_ber(MCSindex, sinrdB_index)) + sinrdB_index * 300;
+      linearY = linearK * (sinrdB - 4) + linearB;
+std::cout << "sinrdB=" << sinrdB << ", sinr_ber(MCSindex, sinrdB_index)=" << sinr_ber(MCSindex, sinrdB_index) << ", MCSindex=" << MCSindex << ", sinrdB_index=" << sinrdB_index << std::endl;
+std::cout << "sally test ber function: GetBerFromSinrLut - 4th case" << ", linearK=" << linearK << ", linearB=" << linearB << ", linearY=" << linearY << std::endl;
+      return pow (10, linearY/10);}
   else
     {
-      linearK = log10 (sinr_ber(MCSindex, sinrdB_index)) - log10 (sinr_ber(MCSindex, sinrdB_index + 1)); 
-      linearB = sinrdB_index * log10 (sinr_ber(MCSindex, sinrdB_index + 1)) - (sinrdB_index + 1) * log10 (sinr_ber(MCSindex, sinrdB_index)); 
-      linearY = linearK * sinrdB + linearB;     
-
-std::cout << "sally test ber function: GetBerFromSinrLut - 3rd case" << ", linearY=" << linearY << std::endl;
-      return pow (10, linearY); 
+      linearK = 10*log10 (sinr_ber(MCSindex, sinrdB_index + 1)) - 10*log10 (sinr_ber(MCSindex, sinrdB_index)); 
+      linearB =  (sinrdB_index + 1) * 10*log10 (sinr_ber(MCSindex, sinrdB_index)) - sinrdB_index * 10*log10 (sinr_ber(MCSindex, sinrdB_index + 1)); 
+      linearY = linearK * (sinrdB - 4) + linearB;     
+std::cout << "sinrdB=" << sinrdB << ", sinr_ber(MCSindex, sinrdB_index)=" << sinr_ber(MCSindex, sinrdB_index) << ", MCSindex=" << MCSindex << ", sinrdB_index=" << sinrdB_index << std::endl; 
+std::cout << "sally test ber function: GetBerFromSinrLut - 5th case" << ", linearK=" << linearK << ", linearB=" << linearB << ", linearY=" << linearY << std::endl;
+      return pow (10, linearY/10); 
     }
 }
 

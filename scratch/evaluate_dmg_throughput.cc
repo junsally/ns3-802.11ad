@@ -110,7 +110,7 @@ main(int argc, char *argv[])
   for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
     {
   
-
+      if (i != 15) continue;
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
 
@@ -136,15 +136,15 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-      wifiPhy.Set ("TxPowerStart", DoubleValue (10.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (10.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (40.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (40.0));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
       wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-79));
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-79 + 3));
+      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
+      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
       /* Set the phy layer error model */
       wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       /* Set default algorithm for all nodes to be constant rate */

@@ -223,7 +223,7 @@ main(int argc, char *argv[])
       Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
       positionAlloc->Add (Vector (0.0, 0.0, 0.0)); // position for PCP/AP
       positionAlloc->Add (Vector (distance, 0.0, 0.0)); // position for staWifiNode
-      positionAlloc->Add (Vector (2*distance*cos(theta*M_PI/180), 2*stance*sin(theta*M_PI/180), 0.0)); // position for intfWifiNode
+      positionAlloc->Add (Vector (2*distance*cos(theta*M_PI/180), 2*distance*sin(theta*M_PI/180), 0.0)); // position for intfWifiNode
 
 std::cout << "sally test position for interferer: " << "x=" << distance*cos(theta*M_PI/180) << ", y=" << distance*sin(theta*M_PI/180) << std::endl;
 

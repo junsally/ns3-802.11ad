@@ -453,7 +453,7 @@ DmgApWifiMac::AddAllocationPeriod (AllocationID allocationID,
                                    uint32_t allocationStart, uint16_t blockDuration)
 {
   NS_LOG_FUNCTION (this << allocationID << allocationType << staticAllocation << sourceAid << destAid);
-std::cout << "sally test dmgapmac -> AddAllocationPeriod, allocationID=" << allocationID << ", allocationType=" << allocationType << ", staticAllocation=" << staticAllocation << ", sourceAid=" << sourceAid << ", destAid=" << destAid << ", allocationStart=" << allocationStart << ", blockDuration=" << blockDuration << std::endl;
+std::cout << "sally test dmgapmac -> AddAllocationPeriod, allocationID=" << allocationID << ", allocationType=" << allocationType << ", staticAllocation=" << staticAllocation << ", sourceAid=" << (uint8_t) sourceAid << ", destAid=" << (uint8_t) destAid << ", allocationStart=" << allocationStart << ", blockDuration=" << blockDuration << std::endl;
   AllocationField field;
   /* Allocation Control Field */
   field.SetAllocationID (allocationID);
@@ -479,7 +479,7 @@ DmgApWifiMac::AllocateBeamformingServicePeriod (uint8_t sourceAid, uint8_t destA
                                                 uint32_t allocationStart, bool isTxss)
 {
   NS_LOG_FUNCTION (this << sourceAid << destAid << allocationStart << isTxss);
-std::cout << "sally test dmgapmac -> AllocateBeamformingServicePeriod, sourceAid=" << sourceAid << ", destAid=" << destAid << ", allocationStart=" << allocationStart << ", isTxss=" << isTxss << std::endl;
+std::cout << "sally test dmgapmac -> AllocateBeamformingServicePeriod, sourceAid=" << (uint8_t) sourceAid << ", destAid=" << (uint8_t) destAid << ", allocationStart=" << allocationStart << ", isTxss=" << isTxss << std::endl;
   AllocationField field;
   /* Allocation Control Field */
   field.SetAllocationType (SERVICE_PERIOD_ALLOCATION);

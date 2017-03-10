@@ -101,6 +101,7 @@ void
 SLSCompleted (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address,
               ChannelAccessPeriod accessPeriod, SECTOR_ID sectorId, ANTENNA_ID antennaId)
 {
+std::cout << "sally test SLSCompleted in main: accessPeriod=" << accessPeriod << std::endl;
   if (accessPeriod == CHANNEL_ACCESS_DTI)
     {
       std::cout << "DMG STA " << staWifiMac->GetAddress () << " completed SLS phase with DMG STA " << address << std::endl;

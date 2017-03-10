@@ -368,6 +368,7 @@ DcfManager::~DcfManager ()
 void
 DcfManager::SetupPhyListener (Ptr<WifiPhy> phy)
 {
+std::cout << "sally test dcfManager -> SetupPhyListener" << std::endl;
   NS_LOG_FUNCTION (this << phy);
   if (m_phyListener != 0)
     {
@@ -380,6 +381,7 @@ DcfManager::SetupPhyListener (Ptr<WifiPhy> phy)
 void
 DcfManager::RemovePhyListener (Ptr<WifiPhy> phy)
 {
+std::cout << "sally test dcfManager -> RemovePhyListener" << std::endl;
   NS_LOG_FUNCTION (this << phy);
   if (m_phyListener != 0)
     {
@@ -392,6 +394,7 @@ DcfManager::RemovePhyListener (Ptr<WifiPhy> phy)
 void
 DcfManager::SetupLowListener (Ptr<MacLow> low)
 {
+std::cout << "sally test dcfManager -> SetupLowListener" << std::endl;
   NS_LOG_FUNCTION (this << low);
   if (m_lowListener != 0)
     {
@@ -404,6 +407,7 @@ DcfManager::SetupLowListener (Ptr<MacLow> low)
 void
 DcfManager::SetSlot (Time slotTime)
 {
+std::cout << "sally test dcfManager -> SetSlot, slotTime=" << slotTime << std::endl;
   NS_LOG_FUNCTION (this << slotTime);
   m_slotTimeUs = slotTime.GetMicroSeconds ();
 }
@@ -411,6 +415,7 @@ DcfManager::SetSlot (Time slotTime)
 void
 DcfManager::SetSifs (Time sifs)
 {
+std::cout << "sally test dcfManager -> SetSifs, sifs=" << sifs << std::endl;
   NS_LOG_FUNCTION (this << sifs);
   m_sifs = sifs;
 }
@@ -418,6 +423,7 @@ DcfManager::SetSifs (Time sifs)
 void
 DcfManager::SetEifsNoDifs (Time eifsNoDifs)
 {
+std::cout << "sally test dcfManager -> SetEifsNoDifs, eifsNoDifs=" << eifsNoDifs << std::endl;
   NS_LOG_FUNCTION (this << eifsNoDifs);
   m_eifsNoDifs = eifsNoDifs;
 }
@@ -425,6 +431,7 @@ DcfManager::SetEifsNoDifs (Time eifsNoDifs)
 Time
 DcfManager::GetEifsNoDifs () const
 {
+std::cout << "sally test dcfManager -> GetEifsNoDifs" << std::endl;
   NS_LOG_FUNCTION (this);
   return m_eifsNoDifs;
 }
@@ -432,6 +439,7 @@ DcfManager::GetEifsNoDifs () const
 void
 DcfManager::Add (DcfState *dcf)
 {
+std::cout << "sally test dcfManager -> Add" << std::endl;
   NS_LOG_FUNCTION (this << dcf);
   m_states.push_back (dcf);
 }
@@ -439,6 +447,7 @@ DcfManager::Add (DcfState *dcf)
 Time
 DcfManager::MostRecent (Time a, Time b) const
 {
+std::cout << "sally test dcfManager -> MostRecent, timeA=" << a << ", timeB=" << b << std::endl;
   NS_LOG_FUNCTION (this << a << b);
   return Max (a, b);
 }
@@ -446,6 +455,7 @@ DcfManager::MostRecent (Time a, Time b) const
 Time
 DcfManager::MostRecent (Time a, Time b, Time c) const
 {
+std::cout << "sally test dcfManager -> MostRecent, timeA=" << a << ", timeB=" << b << ", timeC=" << c << std::endl;
   NS_LOG_FUNCTION (this << a << b << c);
   Time retval;
   retval = Max (a, b);
@@ -456,6 +466,7 @@ DcfManager::MostRecent (Time a, Time b, Time c) const
 Time
 DcfManager::MostRecent (Time a, Time b, Time c, Time d) const
 {
+std::cout << "sally test dcfManager -> MostRecent, timeA=" << a << ", timeB=" << b << ", timeC=" << c << ", timeD=" << d << std::endl;
   NS_LOG_FUNCTION (this << a << b << c << d);
   Time e = Max (a, b);
   Time f = Max (c, d);
@@ -466,6 +477,7 @@ DcfManager::MostRecent (Time a, Time b, Time c, Time d) const
 Time
 DcfManager::MostRecent (Time a, Time b, Time c, Time d, Time e, Time f) const
 {
+std::cout << "sally test dcfManager -> MostRecent, timeA=" << a << ", timeB=" << b << ", timeC=" << c << ", timeD=" << d << ", timeE=" << e << ", timeF=" << f << std::endl;
   NS_LOG_FUNCTION (this << a << b << c << d << e << f);
   Time g = Max (a, b);
   Time h = Max (c, d);
@@ -478,6 +490,7 @@ DcfManager::MostRecent (Time a, Time b, Time c, Time d, Time e, Time f) const
 Time
 DcfManager::MostRecent (Time a, Time b, Time c, Time d, Time e, Time f, Time g) const
 {
+std::cout << "sally test dcfManager -> MostRecent, timeA=" << a << ", timeB=" << b << ", timeC=" << c << ", timeD=" << d << ", timeE=" << e << ", timeF=" << f << ", timeG=" << g << std::endl;
   NS_LOG_FUNCTION (this << a << b << c << d << e << f << g);
   Time h = Max (a, b);
   Time i = Max (c, d);
@@ -491,27 +504,32 @@ DcfManager::MostRecent (Time a, Time b, Time c, Time d, Time e, Time f, Time g) 
 bool
 DcfManager::IsBusy (void) const
 {
+std::cout << "sally test dcfManager -> IsBusy" << std::endl;
   NS_LOG_FUNCTION (this);
   // PHY busy
   if (m_rxing)
     {
+std::cout << "sally test dcfManager -> IsBusy, case1" << std::endl;
       return true;
     }
   Time lastTxEnd = m_lastTxStart + m_lastTxDuration;
   if (lastTxEnd > Simulator::Now ())
     {
+std::cout << "sally test dcfManager -> IsBusy, case2" << std::endl;
       return true;
     }
   // NAV busy
   Time lastNavEnd = m_lastNavStart + m_lastNavDuration;
   if (lastNavEnd > Simulator::Now ())
     {
+std::cout << "sally test dcfManager -> IsBusy, case3" << std::endl;
       return true;
     }
   // CCA busy
   Time lastCCABusyEnd = m_lastBusyStart + m_lastBusyDuration;
   if (lastCCABusyEnd > Simulator::Now ())
     {
+std::cout << "sally test dcfManager -> IsBusy, case4" << std::endl;
       return true;
     }
   return false;
@@ -520,6 +538,7 @@ DcfManager::IsBusy (void) const
 bool
 DcfManager::IsWithinAifs (DcfState *state) const
 {
+std::cout << "sally test dcfManager -> IsWithinAifs" << std::endl;
   NS_LOG_FUNCTION (this << state);
   Time ifsEnd = GetAccessGrantStart () + MicroSeconds (state->GetAifsn () * m_slotTimeUs);
   if (ifsEnd > Simulator::Now ())
@@ -534,24 +553,28 @@ DcfManager::IsWithinAifs (DcfState *state) const
 void
 DcfManager::AllowChannelAccess ()
 {
+std::cout << "sally test dcfManager -> AllowChannelAccess" << std::endl;
   m_accessAllowed = true;
 }
 
 void
 DcfManager::DisableChannelAccess ()
 {
+std::cout << "sally test dcfManager -> DisableChannelAccess" << std::endl;
   m_accessAllowed = false;
 }
 
 bool
 DcfManager::IsAccessAllowed () const
 {
+std::cout << "sally test dcfManager -> IsAccessAllowed" << std::endl;
   return m_accessAllowed;
 }
 
 void
 DcfManager::RequestAccess (DcfState *state)
 {
+std::cout << "sally test dcfManager -> RequestAccess" << std::endl;
   NS_LOG_FUNCTION (this << state);
   //Deny access if in sleep mode
   if (m_sleeping)
@@ -600,6 +623,7 @@ DcfManager::RequestAccess (DcfState *state)
 void
 DcfManager::DoGrantAccess (void)
 {
+std::cout << "sally test dcfManager -> DoGrantAccess" << std::endl;
   NS_LOG_FUNCTION (this);
   uint32_t k = 0;
   for (States::const_iterator i = m_states.begin (); i != m_states.end (); k++)
@@ -655,6 +679,7 @@ DcfManager::DoGrantAccess (void)
 void
 DcfManager::AccessTimeout (void)
 {
+std::cout << "sally test dcfManager -> AccessTimeout" << std::endl;
   NS_LOG_FUNCTION (this);
   UpdateBackoff ();
   DoGrantAccess ();
@@ -664,6 +689,7 @@ DcfManager::AccessTimeout (void)
 Time
 DcfManager::GetAccessGrantStart (void) const
 {
+std::cout << "sally test dcfManager -> GetAccessGrantStart" << std::endl;
   NS_LOG_FUNCTION (this);
   Time rxAccessStart;
   if (!m_rxing)
@@ -703,6 +729,8 @@ DcfManager::GetAccessGrantStart (void) const
 Time
 DcfManager::GetBackoffStartFor (DcfState *state)
 {
+std::cout << "sally test dcfManager -> GetBackoffStartFor" << std::endl;
+
   NS_LOG_FUNCTION (this << state);
   Time mostRecentEvent = MostRecent (state->GetBackoffStart (),
                                      GetAccessGrantStart () + MicroSeconds (state->GetAifsn () * m_slotTimeUs));
@@ -713,6 +741,8 @@ DcfManager::GetBackoffStartFor (DcfState *state)
 Time
 DcfManager::GetBackoffEndFor (DcfState *state)
 {
+std::cout << "sally test dcfManager -> GetBackoffEndFor" << std::endl;
+
   NS_LOG_FUNCTION (this << state);
   NS_LOG_DEBUG ("Backoff start: " << GetBackoffStartFor (state).As (Time::US) <<
     " end: " << (GetBackoffStartFor (state) + 
@@ -723,6 +753,8 @@ DcfManager::GetBackoffEndFor (DcfState *state)
 void
 DcfManager::UpdateBackoff (void)
 {
+std::cout << "sally test dcfManager -> UpdateBackoff" << std::endl;
+
   NS_LOG_FUNCTION (this);
   uint32_t k = 0;
   for (States::const_iterator i = m_states.begin (); i != m_states.end (); i++, k++)
@@ -760,6 +792,8 @@ DcfManager::UpdateBackoff (void)
 void
 DcfManager::DoRestartAccessTimeoutIfNeeded (void)
 {
+std::cout << "sally test dcfManager -> DoRestartAccessTimeoutIfNeeded" << std::endl;
+
   NS_LOG_FUNCTION (this);
   /**
    * Is there a DcfState which needs to access the medium, and,
@@ -801,12 +835,16 @@ DcfManager::DoRestartAccessTimeoutIfNeeded (void)
 bool
 DcfManager::IsReceiving (void) const
 {
+std::cout << "sally test dcfManager -> IsReceiving" << std::endl;
+
   return m_rxing;
 }
 
 void
 DcfManager::NotifyRxStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyRxStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   MY_DEBUG ("rx start for=" << duration);
   UpdateBackoff ();
@@ -818,6 +856,8 @@ DcfManager::NotifyRxStartNow (Time duration)
 void
 DcfManager::NotifyRxEndOkNow (void)
 {
+std::cout << "sally test dcfManager -> NotifyRxEndOkNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   MY_DEBUG ("rx end ok");
   m_lastRxEnd = Simulator::Now ();
@@ -828,6 +868,8 @@ DcfManager::NotifyRxEndOkNow (void)
 void
 DcfManager::NotifyRxEndErrorNow (void)
 {
+std::cout << "sally test dcfManager -> NotifyRxEndErrorNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   MY_DEBUG ("rx end error");
   m_lastRxEnd = Simulator::Now ();
@@ -838,6 +880,8 @@ DcfManager::NotifyRxEndErrorNow (void)
 void
 DcfManager::NotifyTxStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyTxStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   if (m_rxing)
     {
@@ -858,6 +902,8 @@ DcfManager::NotifyTxStartNow (Time duration)
 void
 DcfManager::NotifyMaybeCcaBusyStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyMaybeCcaBusyStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   MY_DEBUG ("busy start for " << duration);
   UpdateBackoff ();
@@ -868,6 +914,8 @@ DcfManager::NotifyMaybeCcaBusyStartNow (Time duration)
 void
 DcfManager::NotifySwitchingStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifySwitchingStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   Time now = Simulator::Now ();
   NS_ASSERT (m_lastTxStart + m_lastTxDuration <= now);
@@ -928,6 +976,8 @@ DcfManager::NotifySwitchingStartNow (Time duration)
 void
 DcfManager::NotifySleepNow (void)
 {
+std::cout << "sally test dcfManager -> NotifySleepNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   m_sleeping = true;
   //Cancel timeout
@@ -947,6 +997,8 @@ DcfManager::NotifySleepNow (void)
 void
 DcfManager::NotifyWakeupNow (void)
 {
+std::cout << "sally test dcfManager -> NotifyWakeupNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   m_sleeping = false;
   for (States::iterator i = m_states.begin (); i != m_states.end (); i++)
@@ -967,6 +1019,8 @@ DcfManager::NotifyWakeupNow (void)
 void
 DcfManager::NotifyNavResetNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyNavResetNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   MY_DEBUG ("nav reset for=" << duration);
   UpdateBackoff ();
@@ -984,6 +1038,8 @@ DcfManager::NotifyNavResetNow (Time duration)
 void
 DcfManager::NotifyNavStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyNavStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   NS_ASSERT (m_lastNavStart <= Simulator::Now ());
   MY_DEBUG ("nav start for=" << duration);
@@ -1000,6 +1056,8 @@ DcfManager::NotifyNavStartNow (Time duration)
 void
 DcfManager::NotifyAckTimeoutStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyAckTimeoutStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   NS_ASSERT (m_lastAckTimeoutEnd < Simulator::Now ());
   m_lastAckTimeoutEnd = Simulator::Now () + duration;
@@ -1008,6 +1066,8 @@ DcfManager::NotifyAckTimeoutStartNow (Time duration)
 void
 DcfManager::NotifyAckTimeoutResetNow ()
 {
+std::cout << "sally test dcfManager -> NotifyAckTimeoutResetNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   m_lastAckTimeoutEnd = Simulator::Now ();
   DoRestartAccessTimeoutIfNeeded ();
@@ -1016,6 +1076,8 @@ DcfManager::NotifyAckTimeoutResetNow ()
 void
 DcfManager::NotifyCtsTimeoutStartNow (Time duration)
 {
+std::cout << "sally test dcfManager -> NotifyCtsTimeoutStartNow, duration=" << duration << std::endl;
+
   NS_LOG_FUNCTION (this << duration);
   m_lastCtsTimeoutEnd = Simulator::Now () + duration;
 }
@@ -1023,6 +1085,8 @@ DcfManager::NotifyCtsTimeoutStartNow (Time duration)
 void
 DcfManager::NotifyCtsTimeoutResetNow ()
 {
+std::cout << "sally test dcfManager -> NotifyCtsTimeoutResetNow" << std::endl;
+
   NS_LOG_FUNCTION (this);
   m_lastCtsTimeoutEnd = Simulator::Now ();
   DoRestartAccessTimeoutIfNeeded ();

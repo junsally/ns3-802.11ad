@@ -93,6 +93,12 @@ std::cout << "sally debug GetPhyRate: " << "dataRate= " << dataRate << std::endl
     case WIFI_CODE_RATE_1_2:
       phyRate = dataRate * 2 / 1;
       break;
+    case WIFI_CODE_RATE_5_8:
+      phyRate = dataRate * 8 / 5;
+      break;
+    case WIFI_CODE_RATE_13_16:
+      phyRate = dataRate * 16 / 13;  
+      break;
     case WIFI_CODE_RATE_UNDEFINED:
     default:
       phyRate = dataRate;
@@ -234,52 +240,56 @@ std::cout << "sally test datarate(case4): " << dataRate << " symbolRate: " << sy
   else if (item->modClass == WIFI_MOD_CLASS_DMG_CTRL)
     {
       dataRate = 27500000;
+std::cout << "sally test datarate(ctrl): " << dataRate << std::endl;
     }
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_SC)
     {
-/*      if (modename == "DMG_MCS1") dataRate = 385000000;
-      else if (modename == "DMG_MCS2") dataRate = 770000000;
-      else if (modename == "DMG_MCS3") dataRate = 962500000;
-      else if (modename == "DMG_MCS4") dataRate = 1155000000;
-      else if (modename == "DMG_MCS5") dataRate = 1251250000;
-      else if (modename == "DMG_MCS6") dataRate = 1540000000;
-      else if (modename == "DMG_MCS7") dataRate = 1925000000;
-      else if (modename == "DMG_MCS8") dataRate = 2310000000;
-      else if (modename == "DMG_MCS9") dataRate = 2502500000;
-      else if (modename == "DMG_MCS10") dataRate = 3080000000;
-      else if (modename == "DMG_MCS11") dataRate = 3850000000;
-      else if (modename == "DMG_MCS12") dataRate = 4620000000; */
+/*
+      if (item->mcsValue == 1) dataRate = 385000000;
+      else if (item->mcsValue == 2) dataRate = 770000000;
+      else if (item->mcsValue == 3) dataRate = 962500000;
+      else if (item->mcsValue == 4) dataRate = 1155000000;
+      else if (item->mcsValue == 5) dataRate = 1251250000;
+      else if (item->mcsValue == 6) dataRate = 1540000000;
+      else if (item->mcsValue == 7) dataRate = 1925000000;
+      else if (item->mcsValue == 8) dataRate = 2310000000;
+      else if (item->mcsValue == 9) dataRate = 2502500000;
+      else if (item->mcsValue == 10) dataRate = 3080000000;
+      else if (item->mcsValue == 11) dataRate = 3850000000;
+      else if (item->mcsValue == 12) dataRate = 4620000000;*/
       dataRate = 385000000;
+std::cout << "sally test datarate(sc): " << dataRate << " item->mcsValue=" << item->mcsValue << std::endl;
     }
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_OFDM)
     {
-/*      if (modename == "DMG_MCS13") dataRate = 693000000;
-      else if (modename == "DMG_MCS14") dataRate = 866250000;
-      else if (modename == "DMG_MCS15") dataRate = 1386000000;
-      else if (modename == "DMG_MCS16") dataRate = 1732500000;
-      else if (modename == "DMG_MCS17") dataRate = 2079000000;
-      else if (modename == "DMG_MCS18") dataRate = 2772000000;
-      else if (modename == "DMG_MCS19") dataRate = 3465000000;
-      else if (modename == "DMG_MCS20") dataRate = 4158000000;
-      else if (modename == "DMG_MCS21") dataRate = 4504500000;
-      else if (modename == "DMG_MCS22") dataRate = 5197500000;
-      else if (modename == "DMG_MCS23") dataRate = 6237000000;
-      else if (modename == "DMG_MCS24") dataRate = 6756750000; */
-      dataRate = 6756750000;
+/*
+      if (item->mcsValue == 13) dataRate = 693000000;
+      else if (item->mcsValue == 14) dataRate = 866250000;
+      else if (item->mcsValue == 15) dataRate = 1386000000;
+      else if (item->mcsValue == 16) dataRate = 1732500000;
+      else if (item->mcsValue == 17) dataRate = 2079000000;
+      else if (item->mcsValue == 18) dataRate = 2772000000;
+      else if (item->mcsValue == 19) dataRate = 3465000000;
+      else if (item->mcsValue == 20) dataRate = 4158000000;
+      else if (item->mcsValue == 21) dataRate = 4504500000;
+      else if (item->mcsValue == 22) dataRate = 5197500000;
+      else if (item->mcsValue == 23) dataRate = 6237000000;
+      else if (item->mcsValue == 24) dataRate = 6756750000;*/
+      dataRate = 1386000000;
+std::cout << "sally test datarate(ofdm): " << dataRate << " item->mcsValue=" << item->mcsValue << std::endl;
     }
 
   else if (item->modClass == WIFI_MOD_CLASS_DMG_LP_SC)
     {
-/*      if (modename == "DMG_MCS25") dataRate = 626000000;
-      else if (modename == "DMG_MCS26") dataRate = 834000000;
-      else if (modename == "DMG_MCS27") dataRate = 1112000000;
-      else if (modename == "DMG_MCS28") dataRate = 1251000000;
-      else if (modename == "DMG_MCS29") dataRate = 1668000000;
-      else if (modename == "DMG_MCS30") dataRate = 2224000000;
-      else if (modename == "DMG_MCS31") dataRate = 2503000000; */
-      dataRate = 626000000;
+      if (item->mcsValue == 25) dataRate = 626000000;
+      else if (item->mcsValue == 26) dataRate = 834000000;
+      else if (item->mcsValue == 27) dataRate = 1112000000;
+      else if (item->mcsValue == 28) dataRate = 1251000000;
+      else if (item->mcsValue == 29) dataRate = 1668000000;
+      else if (item->mcsValue == 30) dataRate = 2224000000;
+      else if (item->mcsValue == 31) dataRate = 2503000000;
     }
 
 
@@ -346,6 +356,80 @@ WifiMode::GetCodeRate (void) const
           return WIFI_CODE_RATE_UNDEFINED;
         }
     }
+/*  else if (item->modClass == WIFI_MOD_CLASS_DMG_CTRL)
+    {
+std::cout << "sally test coderate(ctrl) " << std::endl;
+        return WIFI_CODE_RATE_1_2;
+    }
+  else if (item->modClass == WIFI_MOD_CLASS_DMG_SC)
+    {
+std::cout << "sally test coderate(sc) "  << std::endl;
+      switch (item->mcsValue)
+        {
+        case 1:
+        case 2:
+        case 6:
+        case 10:
+          return WIFI_CODE_RATE_1_2;
+        case 3:
+        case 7:
+        case 11:
+          return WIFI_CODE_RATE_5_8;
+        case 4:
+        case 8:
+        case 12:
+          return WIFI_CODE_RATE_3_4;
+        case 5:
+        case 9:
+          return WIFI_CODE_RATE_13_16;
+        default:
+          return WIFI_CODE_RATE_UNDEFINED;    
+        }
+    }
+  else if (item->modClass == WIFI_MOD_CLASS_DMG_OFDM)
+    {
+std::cout << "sally test coderate(ofdm) " << std::endl;
+      switch (item->mcsValue)  
+        {
+        case 13:
+        case 15:
+        case 18:
+          return WIFI_CODE_RATE_1_2;        
+        case 14:
+        case 16:
+        case 19:
+        case 22:
+          return WIFI_CODE_RATE_5_8;
+        case 17:
+        case 20:
+        case 23:
+          return WIFI_CODE_RATE_3_4;
+        case 21:
+        case 24:
+          return WIFI_CODE_RATE_13_16;     
+        default:
+          return WIFI_CODE_RATE_UNDEFINED; 
+        }
+    }*/
+/*  else if (item->modClass == WIFI_MOD_CLASS_DMG_LP_SC)
+    {
+      switch (item->mcsValue)
+        {
+        case 25:
+        case 28:
+          return WIFI_CODE_RATE_13_28;   
+        case 26:
+        case 29:
+          return WIFI_CODE_RATE_13_21;
+        case 27:
+        case 30:
+          return WIFI_CODE_RATE_52_63; 
+        case 31:
+          return WIFI_CODE_RATE_13_14;
+        default:
+          return WIFI_CODE_RATE_UNDEFINED;                          
+        }
+    }*/
   else
     {
       return item->codingRate;

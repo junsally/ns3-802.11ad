@@ -119,7 +119,7 @@ main(int argc, char *argv[])
    for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
     {
   
-     if (i != 1) continue; //Sally add
+     if (i != 15) continue; //Sally add
 
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
@@ -146,8 +146,8 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-      wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (40.0));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (40.0));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));

@@ -295,6 +295,7 @@ InterferenceHelper::CalculateSnr (double signal, double noiseInterference, uint3
   double Nt = BOLTZMANN * 290.0 * channelWidth * 1000000;
   //receiver noise Floor (W) which accounts for thermal noise and non-idealities of the receiver
   double noiseFloor = m_noiseFigure * Nt;
+  if (noiseInterference < 0) noiseInterference = -noiseInterference;  //sally add
   double noise = noiseFloor + noiseInterference;
   double snr = signal / noise; //linear scale
   NS_LOG_DEBUG ("bandwidth(MHz)=" << channelWidth << ", signal(W)= " << signal << ", noise(W)=" << noiseFloor << ", interference(W)=" << noiseInterference << ", snr(linear)=" << snr);
