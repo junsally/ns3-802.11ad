@@ -277,7 +277,7 @@ std::cout << "sally test datarate(sc): " << dataRate << " item->mcsValue=" << it
       else if (item->mcsValue == 22) dataRate = 5197500000;
       else if (item->mcsValue == 23) dataRate = 6237000000;
       else if (item->mcsValue == 24) dataRate = 6756750000;*/
-      dataRate = 1386000000;
+      dataRate = 6756750000;
 std::cout << "sally test datarate(ofdm): " << dataRate << " item->mcsValue=" << item->mcsValue << std::endl;
     }
 
