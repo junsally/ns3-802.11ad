@@ -241,7 +241,7 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue(ssid),
                    "BE_MaxAmpduSize", UintegerValue (0),
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (sectorNum),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (12),
                    "BeaconInterval", TimeValue (MilliSeconds (100)),
                    "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
