@@ -208,8 +208,8 @@ main (int argc, char *argv[])
   wifiPhy.Set ("RxGain", DoubleValue (0));
   /* Sensitivity model includes implementation loss and noise figure */
   wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-//  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-60));
-//  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-60 + 3));
+  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (0));
+  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0 + 3));
   /* Set the phy layer error model */
 //  wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
   wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
