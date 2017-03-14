@@ -41,13 +41,15 @@ main(int argc, char *argv[])
   string tcpVariant = "ns3::TcpNewReno";        /* TCP Variant Type. */
   uint32_t bufferSize = 131072;                 /* TCP Send/Receive Buffer Size. */
   string phyMode = "DMG_MCS";                   /* Type of the Physical Layer. */
-  double distance = 1;                        /* The distance between transmitter and receiver in meters. */
+  double distance = 5.0;                        /* The distance between transmitter and receiver in meters. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 2;                    /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   std::list<std::string> dataRateList;          /* List of the maximum data rate supported by the standard*/
   std::string channelState = "a";
-
+  uint16_t sectorNum = 8;                        /* Number of sectors in total. */
+  double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
+  double txPower = 40.0;                        /* transmit power in dBm. */
 
   /** MCS List **/
   /* SC PHY */
@@ -91,6 +93,9 @@ main(int argc, char *argv[])
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("channelState", "Channel state 'l'=LOS, 'n'=NLOS, 'a'=all", channelState);
+  cmd.AddValue ("sectorNum", "Number of sectors in total", sectorNum);
+  cmd.AddValue ("radEfficiency", "radition efficiency (between 0 and 1)", radEfficiency);
+  cmd.AddValue ("txPower", "transmit power in dBm", txPower);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -119,7 +124,7 @@ main(int argc, char *argv[])
    for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
     {
   
-     if (i != 15) continue; //Sally add
+     if (i != 24) continue; //Sally add
 
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
@@ -146,15 +151,15 @@ main(int argc, char *argv[])
       /* Nodes will be added to the channel we set up earlier */
       wifiPhy.SetChannel (wifiChannel.Create ());
       /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-      wifiPhy.Set ("TxPowerStart", DoubleValue (40.0));
-      wifiPhy.Set ("TxPowerEnd", DoubleValue (40.0));
+      wifiPhy.Set ("TxPowerStart", DoubleValue (txPower));
+      wifiPhy.Set ("TxPowerEnd", DoubleValue (txPower));
       wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
       wifiPhy.Set ("TxGain", DoubleValue (0));
       wifiPhy.Set ("RxGain", DoubleValue (0));
       /* Sensitivity model includes implementation loss and noise figure */
       wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
-      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
+//      wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-109));
+//      wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-109 + 3));
       /* Set the phy layer error model */
 //      wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
       wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -165,9 +170,14 @@ main(int argc, char *argv[])
                                                                     "DataMode", StringValue (phyMode + mcs.str ()));
       /* Give all nodes steerable antenna */
       wifiPhy.EnableAntenna (true, true);
-      wifiPhy.SetAntenna ("ns3::Directional60GhzAntenna",
+/*      wifiPhy.SetAntenna ("ns3::Directional60GhzAntenna",
                           "Sectors", UintegerValue (8),
                           "Antennas", UintegerValue (1));
+*/
+      wifiPhy.SetAntenna ("ns3::DirectionalFlatTopAntenna",
+                          "Sectors", UintegerValue (sectorNum),
+                          "Antennas", UintegerValue (1),
+                          "RadiationEfficiency", DoubleValue (radEfficiency));
 
       /* Make two nodes and set them up with the phy and the mac */
       NodeContainer wifiNodes;
