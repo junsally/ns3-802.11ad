@@ -50,7 +50,7 @@ main(int argc, char *argv[])
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
   double txPower = 40.0;                        /* transmit power in dBm. */
-  int MCSmode = 24;                                /* MCS mode. */
+  uint MCSmode = 24;                                /* MCS mode. */
 
   /** MCS List **/
   /* SC PHY */
