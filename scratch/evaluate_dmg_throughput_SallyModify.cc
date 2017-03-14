@@ -50,6 +50,7 @@ main(int argc, char *argv[])
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
   double txPower = 40.0;                        /* transmit power in dBm. */
+  int MCSmode = 24;                                /* MCS mode. */
 
   /** MCS List **/
   /* SC PHY */
@@ -96,6 +97,7 @@ main(int argc, char *argv[])
   cmd.AddValue ("sectorNum", "Number of sectors in total", sectorNum);
   cmd.AddValue ("radEfficiency", "radition efficiency (between 0 and 1)", radEfficiency);
   cmd.AddValue ("txPower", "transmit power in dBm", txPower);
+  cmd.AddValue ("MCSmode", "MCS mode", MCSmode);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -124,7 +126,7 @@ main(int argc, char *argv[])
    for (std::list<std::string>::const_iterator iter = dataRateList.begin (); iter != dataRateList.end (); iter++, i++) //MCS
     {
   
-     if (i != 24) continue; //Sally add
+     if (i != MCSmode) continue; //Sally add
 
       /**** WifiHelper is a meta-helper: it helps creates helpers ****/
       WifiHelper wifi;
