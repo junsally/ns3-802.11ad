@@ -149,7 +149,7 @@ main (int argc, char *argv[])
   double sta3_xPos = 1;                         /* X axis position of station 3. */
   double sta3_yPos = 1;                         /* Y axis position of station 2. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
-
+  double txPower = 40.0;                       /* transmit power in dBm. */
 
   /* Command line argument parser setup. */
   CommandLine cmd;
@@ -168,6 +168,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("sta3x", "X axis position of station 3", sta3_xPos);
   cmd.AddValue ("sta3y", "Y axis position of station 3", sta3_yPos);
   cmd.AddValue ("radEfficiency", "radition efficiency (between 0 and 1)", radEfficiency);
+  cmd.AddValue ("txPower", "transmit power in dBm", txPower);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -201,15 +202,15 @@ main (int argc, char *argv[])
   /* Nodes will be added to the channel we set up earlier */
   wifiPhy.SetChannel (wifiChannel.Create ());
   /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-  wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
-  wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
+  wifiPhy.Set ("TxPowerStart", DoubleValue (txPower));
+  wifiPhy.Set ("TxPowerEnd", DoubleValue (txPower));
   wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
   wifiPhy.Set ("TxGain", DoubleValue (0));
   wifiPhy.Set ("RxGain", DoubleValue (0));
   /* Sensitivity model includes implementation loss and noise figure */
   wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (0));
-  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (0 + 3));
+  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-30));
+  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-30 + 3));
   /* Set the phy layer error model */
 //  wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
   wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -241,8 +242,8 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue(ssid),
                    "BE_MaxAmpduSize", UintegerValue (0),
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (12),
-                   "BeaconInterval", TimeValue (MilliSeconds (100)),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (15),
+                   "BeaconInterval", TimeValue (MilliSeconds (1000)),
                    "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
 
