@@ -75,6 +75,7 @@ CalculateThroughput (Ptr<PacketSink> sink, uint64_t lastTotalRx, double averageT
 void
 StationAssoicated (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address)
 {
+  std::cout << "sally test StationAssociated in main" << std::endl;
   std::cout << "DMG STA " << staWifiMac->GetAddress () << " associated with DMG AP " << address << std::endl;
   std::cout << "Association ID (AID) = " << staWifiMac->GetAssociationID () << std::endl;
   assoicatedStations++;
@@ -146,10 +147,12 @@ main (int argc, char *argv[])
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double sta3_xPos = 0;                         /* X axis position of station 2. */
-  double sta3_yPos = -1;                         /* Y axis position of station 2. */
-  double sta4_xPos = -1;                         /* X axis position of station 3. */
+  double sta3_yPos = -3;                         /* Y axis position of station 2. */
+  double sta4_xPos = -4;                         /* X axis position of station 3. */
   double sta4_yPos = 0;                         /* Y axis position of station 2. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
+  double txPower = 60.0;                       /* transmit power in dBm. */
+  double threshold = -18;                       /* CCA mode1 threshold */
 
 
   /* Command line argument parser setup. */
@@ -169,6 +172,8 @@ main (int argc, char *argv[])
   cmd.AddValue ("sta4x", "X axis position of station 3", sta4_xPos);
   cmd.AddValue ("sta4y", "Y axis position of station 3", sta4_yPos);
   cmd.AddValue ("radEfficiency", "radition efficiency (between 0 and 1)", radEfficiency);
+  cmd.AddValue ("txPower", "transmit power in dBm", txPower);
+  cmd.AddValue ("threshold", "CCA mode1 threshold", threshold);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -202,15 +207,15 @@ main (int argc, char *argv[])
   /* Nodes will be added to the channel we set up earlier */
   wifiPhy.SetChannel (wifiChannel.Create ());
   /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
-  wifiPhy.Set ("TxPowerStart", DoubleValue (100.0));
-  wifiPhy.Set ("TxPowerEnd", DoubleValue (100.0));
+  wifiPhy.Set ("TxPowerStart", DoubleValue (txPower));
+  wifiPhy.Set ("TxPowerEnd", DoubleValue (txPower));
   wifiPhy.Set ("TxPowerLevels", UintegerValue (1));
   wifiPhy.Set ("TxGain", DoubleValue (0));
   wifiPhy.Set ("RxGain", DoubleValue (0));
   /* Sensitivity model includes implementation loss and noise figure */
   wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-//  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-60));
-//  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-60 + 3));
+  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (threshold));
+  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (threshold + 3));
   /* Set the phy layer error model */
 //  wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
   wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -243,9 +248,9 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue(ssid),
                    "BE_MaxAmpduSize", UintegerValue (0),
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (sectorNum),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (8),
                    "BeaconInterval", TimeValue (MilliSeconds (100)),
-                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
+                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
 
   NetDeviceContainer apDevice;
@@ -264,7 +269,7 @@ main (int argc, char *argv[])
   Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
   positionAlloc->Add (Vector (0.0, 0.0, 0.0));   /* PCP/AP */
   positionAlloc->Add (Vector (0.0, +1.0, 0.0));   /* first STA */
-  positionAlloc->Add (Vector (+1.0, 0.0, 0.0));   /* second STA */
+  positionAlloc->Add (Vector (+2.0, 0.0, 0.0));   /* second STA */
   positionAlloc->Add (Vector (sta3_xPos, sta3_yPos, 0.0));   /* third STA */
   positionAlloc->Add (Vector (sta4_xPos, sta4_yPos, 0.0));   /* fourth STA */
 

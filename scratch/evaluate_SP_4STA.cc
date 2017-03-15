@@ -98,21 +98,22 @@ StationAssoicated (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address)
 }
 
 void
-SLSCompleted (Ptr<DmgWifiMac> WifiMac, Mac48Address address,
+SLSCompleted (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address,
               ChannelAccessPeriod accessPeriod, SECTOR_ID sectorId, ANTENNA_ID antennaId)
 {
 std::cout << "sally test SLSCompleted in main: accessPeriod=" << accessPeriod << std::endl;
   if (accessPeriod == CHANNEL_ACCESS_DTI)
     {
-      std::cout << "DMG STA " << WifiMac->GetAddress () << " completed SLS phase with DMG STA " << address << std::endl;
+      std::cout << "DMG STA " << staWifiMac->GetAddress () << " completed SLS phase with DMG STA " << address << std::endl;
       std::cout << "The best antenna configuration is SectorID=" << uint32_t (sectorId)
                 << ", AntennaID=" << uint32_t (antennaId) << std::endl;
-      if ((apWifiMac->GetAddress () == WifiMac->GetAddress ()) &&
+      std::cout << "stationsTrained=" << stationsTrained << std::endl;
+      if ((apWifiMac->GetAddress () == staWifiMac->GetAddress ()) &&
           (staFIRSTWifiMac->GetAddress () == address))
         {
           stationsTrained++;
         }
-      if ((staSECONDWifiMac->GetAddress () == WifiMac->GetAddress ()) &&
+      if ((staSECONDWifiMac->GetAddress () == staWifiMac->GetAddress ()) &&
           (staTHIRDWifiMac->GetAddress () == address)) 
         {
           stationsTrained++;
@@ -120,7 +121,7 @@ std::cout << "sally test SLSCompleted in main: accessPeriod=" << accessPeriod <<
 
       if ((stationsTrained == 2) & !scheduledStaticPeriods)
         {
-          std::cout << "DMG STA " << WifiMac->GetAddress () << " completed SLS phase with DMG STAs " << std::endl;
+          std::cout << "West DMG STA " << staWifiMac->GetAddress () << " completed SLS phase with DMG STAs " << std::endl;
           std::cout << "Schedule Static Periods" << std::endl;
           scheduledStaticPeriods = true;
           /* Schedule Static Periods */
@@ -145,11 +146,12 @@ main (int argc, char *argv[])
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
-  double sta2_yPos = 1;                         /* Y axis position of station 2. */
+  double sta2_yPos = 2;                         /* Y axis position of station 2. */
   double sta3_xPos = 1;                         /* X axis position of station 3. */
-  double sta3_yPos = 1;                         /* Y axis position of station 2. */
+  double sta3_yPos = 3;                         /* Y axis position of station 2. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
-  double txPower = 40.0;                       /* transmit power in dBm. */
+  double txPower = 60.0;                       /* transmit power in dBm. */
+  double threshold = -18;                       /* CCA mode1 threshold */
 
   /* Command line argument parser setup. */
   CommandLine cmd;
@@ -169,6 +171,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("sta3y", "Y axis position of station 3", sta3_yPos);
   cmd.AddValue ("radEfficiency", "radition efficiency (between 0 and 1)", radEfficiency);
   cmd.AddValue ("txPower", "transmit power in dBm", txPower);
+  cmd.AddValue ("threshold", "CCA mode1 threshold", threshold);
   cmd.Parse (argc, argv);
 
   /* Global params: no fragmentation, no RTS/CTS, fixed rate for all packets */
@@ -209,8 +212,8 @@ main (int argc, char *argv[])
   wifiPhy.Set ("RxGain", DoubleValue (0));
   /* Sensitivity model includes implementation loss and noise figure */
   wifiPhy.Set ("RxNoiseFigure", DoubleValue (3));
-  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-30));
-  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-30 + 3));
+  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (threshold));
+  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (threshold + 3));
   /* Set the phy layer error model */
 //  wifiPhy.SetErrorRateModel ("ns3::SensitivityModel60GHz");
   wifiPhy.SetErrorRateModel ("ns3::ErrorRateModelSensitivityOFDM");
@@ -242,7 +245,7 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue(ssid),
                    "BE_MaxAmpduSize", UintegerValue (0),
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (15),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (12),
                    "BeaconInterval", TimeValue (MilliSeconds (1000)),
                    "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
