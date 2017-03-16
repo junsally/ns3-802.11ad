@@ -142,7 +142,7 @@ main (int argc, char *argv[])
   uint32_t queueSize = 10000;                   /* Wifi Mac Queue Size. */
   string phyMode = "DMG_MCS24";                 /* Type of the Physical Layer. */
   bool verbose = false;                         /* Print Logging Information. */
-  double simulationTime = 4.05;                   /* Simulation time in seconds. */
+  double simulationTime = 4.01;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
@@ -245,9 +245,9 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue(ssid),
                    "BE_MaxAmpduSize", UintegerValue (0),
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (12),
-                   "BeaconInterval", TimeValue (MilliSeconds (1000)),
-                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (sectorNum),
+                   "BeaconInterval", TimeValue (MilliSeconds (100)),
+                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
 
   NetDeviceContainer apDevice;
