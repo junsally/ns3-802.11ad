@@ -247,7 +247,7 @@ main (int argc, char *argv[])
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
                    "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (sectorNum),
                    "BeaconInterval", TimeValue (MilliSeconds (100)),
-                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
+                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
 
   NetDeviceContainer apDevice;
