@@ -591,7 +591,11 @@ std::cout << "sally test DmgWifiMac -> SteerAntennaToward, Change Receive Antenn
       else
         {
 std::cout << "sally test DmgWifiMac -> SteerAntennaToward, set in omni receiving mode" << std::endl;
-          m_phy->GetDirectionalAntenna ()->SetInOmniReceivingMode ();
+//          m_phy->GetDirectionalAntenna ()->SetInOmniReceivingMode ();       // sally modify
+          m_phy->GetDirectionalAntenna ()->SetInDirectionalReceivingMode ();
+          m_phy->GetDirectionalAntenna ()->SetCurrentRxSectorID (antennaConfigTx.first);
+          m_phy->GetDirectionalAntenna ()->SetCurrentRxAntennaID (antennaConfigTx.second);
+std::cout << "sally test DmgWifiMac -> SteerAntennaToward, set in directional receiving mode, configure rx to best tx" << std::endl;
         }
     }
   else
