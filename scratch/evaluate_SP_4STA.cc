@@ -146,9 +146,9 @@ main (int argc, char *argv[])
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 8;                        /* Number of sectors in total. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
-  double sta2_yPos = 2;                         /* Y axis position of station 2. */
+  double sta2_yPos = 1;                         /* Y axis position of station 2. */
   double sta3_xPos = 1;                         /* X axis position of station 3. */
-  double sta3_yPos = 3;                         /* Y axis position of station 2. */
+  double sta3_yPos = 1;                         /* Y axis position of station 2. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
   double txPower = 60.0;                       /* transmit power in dBm. */
   double threshold = -18;                       /* CCA mode1 threshold */
