@@ -64,7 +64,7 @@ CalculateThroughput (Ptr<PacketSink> sink, uint64_t lastTotalRx, double averageT
 {
   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
   double cur = (sink->GetTotalRx() - lastTotalRx) * (double) 8/1e5;     /* Convert Application RX Packets to MBits. */
-  std::cout << now.GetSeconds () << '\t' << cur << std::endl;
+  std::cout << "junjun " << now.GetSeconds () << '\t' << cur << std::endl;
   lastTotalRx = sink->GetTotalRx ();
   averageThroughput += cur;
   Simulator::Schedule (MilliSeconds (100), &CalculateThroughput, sink, lastTotalRx, averageThroughput);
