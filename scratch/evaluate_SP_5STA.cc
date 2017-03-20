@@ -95,7 +95,11 @@ StationAssoicated (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address)
       std::cout << "All stations got associated with " << address << std::endl;
       /* Schedule Beamforming Training SP */
       apWifiMac->AllocateBeamformingServicePeriod (staFirstWifiMac->GetAssociationID (), staSecondWifiMac->GetAssociationID (), 0, true);
-      apWifiMac->AllocateBeamformingServicePeriod (staThirdWifiMac->GetAssociationID (), staFourthWifiMac->GetAssociationID (), 500, true);
+      apWifiMac->AllocateBeamformingServicePeriod (staFirstWifiMac->GetAssociationID (), staThirdWifiMac->GetAssociationID (), 500, true);
+      apWifiMac->AllocateBeamformingServicePeriod (staFirstWifiMac->GetAssociationID (), staFourthWifiMac->GetAssociationID (), 1000, true);
+      apWifiMac->AllocateBeamformingServicePeriod (staSecondWifiMac->GetAssociationID (), staThirdWifiMac->GetAssociationID (), 1500, true);
+      apWifiMac->AllocateBeamformingServicePeriod (staSecondWifiMac->GetAssociationID (), staFourthWifiMac->GetAssociationID (), 2000, true);
+      apWifiMac->AllocateBeamformingServicePeriod (staThirdWifiMac->GetAssociationID (), staFourthWifiMac->GetAssociationID (), 2500, true);
     }
 }
 
@@ -145,7 +149,7 @@ main (int argc, char *argv[])
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 4.01;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
-  uint16_t sectorNum = 8;                        /* Number of sectors in total. */
+  uint16_t sectorNum = 12;                        /* Number of sectors in total. */
   double sta3_xPos = 0;                         /* X axis position of station 2. */
   double sta3_yPos = -3;                         /* Y axis position of station 2. */
   double sta4_xPos = -4;                         /* X axis position of station 3. */
@@ -250,7 +254,7 @@ main (int argc, char *argv[])
                    "BE_MaxAmsduSize", UintegerValue (msduAggregationSize),
                    "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (sectorNum),
                    "BeaconInterval", TimeValue (MilliSeconds (100)),
-                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (600)),
+                   "BeaconTransmissionInterval", TimeValue (MicroSeconds (800)),
                    "ATIDuration", TimeValue (MicroSeconds (1000)));
 
   NetDeviceContainer apDevice;
