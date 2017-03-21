@@ -1062,7 +1062,7 @@ DmgWifiMac::GetBestAntennaConfiguration (const Mac48Address stationAddress, bool
 DmgWifiMac::ANTENNA_CONFIGURATION
 DmgWifiMac::GetBestAntennaConfiguration (const Mac48Address stationAddress, bool isTxConfiguration, double &maxSnr)
 {
-std::cout << "sally test DmgWifiMac -> GetBestAntennaConfiguration, stationAddress=" << stationAddress << ", isTxConfiguration=" << isTxConfiguration << ", maxSnr=" << &maxSnr << std::endl;
+std::cout << "sally test DmgWifiMac -> GetBestAntennaConfiguration, stationAddress=" << stationAddress << ", isTxConfiguration=" << isTxConfiguration << ", maxSnr=" << maxSnr << std::endl;
   SNR_PAIR snrPair = m_stationSnrMap [stationAddress];
   SNR_MAP snrMap;
   if (isTxConfiguration)
