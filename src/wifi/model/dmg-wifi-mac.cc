@@ -1085,6 +1085,7 @@ std::cout << "sally test DmgWifiMac -> GetBestAntennaConfiguration, stationAddre
           maxSnr = snr;
         }
     }
+std::cout << "sally test DmgWifiMac -> GetBestAntennaConfiguration, maxSnr=" << maxSnr << std::endl;
   return highIter->first;
 }
 
