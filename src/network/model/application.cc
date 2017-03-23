@@ -70,12 +70,14 @@ Application::SetStartTime (Time start)
 {
   NS_LOG_FUNCTION (this << start);
   m_startTime = start;
+std::cout << "sally test Application::SetStartTime, start=" << start << std::endl;
 }
 void
 Application::SetStopTime (Time stop)
 {
   NS_LOG_FUNCTION (this << stop);
   m_stopTime = stop;
+std::cout << "sally test Application::SetStopTime, stop=" << stop << std::endl;
 }
 
 

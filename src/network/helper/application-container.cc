@@ -88,6 +88,7 @@ ApplicationContainer::Start (Time start)
       Ptr<Application> app = *i;
       app->SetStartTime (start);
     }
+std::cout << "sally test ApplicationContainer::Start, startTime=" << start << std::endl;
 }
 void 
 ApplicationContainer::Stop (Time stop)
@@ -97,6 +98,7 @@ ApplicationContainer::Stop (Time stop)
       Ptr<Application> app = *i;
       app->SetStopTime (stop);
     }
+std::cout << "sally test ApplicationContainer::Stop, stopTime=" << stop << std::endl;
 }
 
 
