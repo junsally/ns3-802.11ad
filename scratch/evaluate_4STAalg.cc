@@ -152,7 +152,7 @@ main (int argc, char *argv[])
   double sta3_yPos = 1;                         /* Y axis position of station 2. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
   double txPower = 60.0;                       /* transmit power in dBm. */
-  double threshold = -18;                       /* CCA mode1 threshold */
+  double threshold = -30;                       /* CCA mode1 threshold */
 
   /* Command line argument parser setup. */
   CommandLine cmd;

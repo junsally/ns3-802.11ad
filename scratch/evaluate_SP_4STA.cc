@@ -144,7 +144,7 @@ main (int argc, char *argv[])
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 4.01;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
-  uint16_t sectorNum = 8;                        /* Number of sectors in total. */
+  uint16_t sectorNum = 12;                        /* Number of sectors in total. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
   double sta2_yPos = 1;                         /* Y axis position of station 2. */
   double sta3_xPos = 1;                         /* X axis position of station 3. */
@@ -316,6 +316,9 @@ main (int argc, char *argv[])
   double staTHIRDNodeAverageThroughput = 0;
 
   /* Install Simple UDP Transmiter on the West Node (Transmit to the South Node) */
+
+
+
   ApplicationContainer srcApp2;
   OnOffHelper src2 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
   src2.SetAttribute ("MaxBytes", UintegerValue (0));
@@ -325,6 +328,9 @@ main (int argc, char *argv[])
   src2.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp2 = src2.Install (staSECONDNode);
   srcApp2.Start (Seconds (3.0));
+
+
+
 
   /* Schedule Throughput Calulcations */
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
