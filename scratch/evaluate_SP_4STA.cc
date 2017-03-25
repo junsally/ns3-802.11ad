@@ -318,7 +318,6 @@ main (int argc, char *argv[])
   /* Install Simple UDP Transmiter on the West Node (Transmit to the South Node) */
 
 
-
   ApplicationContainer srcApp2;
   OnOffHelper src2 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
   src2.SetAttribute ("MaxBytes", UintegerValue (0));
@@ -328,7 +327,6 @@ main (int argc, char *argv[])
   src2.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp2 = src2.Install (staSECONDNode);
   srcApp2.Start (Seconds (3.0));
-
 
 
 
