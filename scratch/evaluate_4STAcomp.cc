@@ -55,11 +55,6 @@ Ptr<DmgStaWifiMac> staThirdWifiMac;
 uint8_t assoicatedStations = 0;           /* Total number of assoicated stations with the AP */
 uint8_t stationsTrained = 0;              /* Number of BF trained stations */
 bool scheduledStaticPeriods = false;      /* Flag to indicate whether we scheduled Static Service Periods or not */
-uint8_t ThroughputCount = 0;              /* Calculate how many times the throughput is calculated. */ 
-double totalThroughput = 0;               /* Calculate the total throughput of concurrent transmission. */
-uint8_t minThroughputNum = 0;             /* Record the minimum throughput station transmission. */
-double minThroughput = 3000.0;            /* Record the minimum throughput value. */    
-uint8_t compareCount = 0;                 /* Record the number of comparisions. */
 
 /*** Service Period ***/
 uint16_t servicePeriodDuration = 3200;    /* The duration of the allocated service periods in MicroSeconds */
@@ -67,33 +62,11 @@ uint16_t servicePeriodDuration = 3200;    /* The duration of the allocated servi
 void
 CalculateThroughput (Ptr<PacketSink> sink, uint64_t lastTotalRx, double averageThroughput)
 {
-  if (ThroughputCount == 4)
-  {
-     ThroughputCount = 0;
-     totalThroughput = 0;
-  }
-
   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
   double cur = (sink->GetTotalRx() - lastTotalRx) * (double) 8/1e5;     /* Convert Application RX Packets to MBits. */
   std::cout << "junjun " << now.GetSeconds () << '\t' << cur << std::endl;
   lastTotalRx = sink->GetTotalRx ();
   averageThroughput += cur;
-  totalThroughput += cur;
-  ThroughputCount++;
-  std::cout << "sally test CalculateThroughput, totalThroughput=" << totalThroughput << ", ThroughputCount=" << ThroughputCount << std::endl;
-
-  if ((now.GetSeconds () < 3.4) && (ThroughputCount == 4))
-  {
-     compareCount++;
-std::cout << "sally test compareCount=" << compareCount << ", minThroughputNum=" << minThroughputNum << std::endl;
-     if (minThroughput > totalThroughput) 
-     {
-        minThroughput = totalThroughput;
-        minThroughputNum = compareCount; 
-     }
-  }
-  std::cout << "sally test CalculateThroughput, minThroughput=" << minThroughput << ", minThroughputNum=" << minThroughputNum << ", time=" << now.GetSeconds () << std::endl;
-
   Simulator::Schedule (MilliSeconds (100), &CalculateThroughput, sink, lastTotalRx, averageThroughput);
 }
 
@@ -124,6 +97,42 @@ StationAssoicated (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address)
     }
 }
 
+/*
+void
+SLSCompleted (Ptr<DmgStaWifiMac> staWifiMac, Mac48Address address,
+              ChannelAccessPeriod accessPeriod, SECTOR_ID sectorId, ANTENNA_ID antennaId)
+{
+std::cout << "sally test SLSCompleted in main: accessPeriod=" << accessPeriod << std::endl;
+  if (accessPeriod == CHANNEL_ACCESS_DTI)
+    {
+      std::cout << "DMG STA " << staWifiMac->GetAddress () << " completed SLS phase with DMG STA " << address << std::endl;
+      std::cout << "The best antenna configuration is SectorID=" << uint32_t (sectorId)
+                << ", AntennaID=" << uint32_t (antennaId) << std::endl;
+      std::cout << "stationsTrained=" << stationsTrained << std::endl;
+      if ((apWifiMac->GetAddress () == staWifiMac->GetAddress ()) &&
+          (staFirstWifiMac->GetAddress () == address))
+        {
+          stationsTrained++;
+        }
+      if ((staSecondWifiMac->GetAddress () == staWifiMac->GetAddress ()) &&
+          (staThirdWifiMac->GetAddress () == address)) 
+        {
+          stationsTrained++;
+        }
+
+      if ((stationsTrained == 2) & !scheduledStaticPeriods)
+        {
+          std::cout << "West DMG STA " << staWifiMac->GetAddress () << " completed SLS phase with DMG STAs " << std::endl;
+          std::cout << "Schedule Static Periods" << std::endl;
+          scheduledStaticPeriods = true;
+  */        /* Schedule Static Periods */
+    /*      apWifiMac->AddAllocationPeriod (1, SERVICE_PERIOD_ALLOCATION, true, AID_AP,
+                                          staFirstWifiMac->GetAssociationID (), 0, servicePeriodDuration);
+          apWifiMac->AddAllocationPeriod (2, SERVICE_PERIOD_ALLOCATION, true, staSecondWifiMac->GetAssociationID (),
+                                          staThirdWifiMac->GetAssociationID (), 36000, servicePeriodDuration);
+        }
+    }
+}*/
 
 int
 main (int argc, char *argv[])
@@ -134,7 +143,7 @@ main (int argc, char *argv[])
   uint32_t queueSize = 10;                   /* Wifi Mac Queue Size. */
   string phyMode = "DMG_MCS24";                 /* Type of the Physical Layer. */
   bool verbose = false;                         /* Print Logging Information. */
-  double simulationTime = 5.31;                   /* Simulation time in seconds. */
+  double simulationTime = 4.51;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 12;                        /* Number of sectors in total. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
@@ -314,7 +323,7 @@ main (int argc, char *argv[])
   src1.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp1 = src1.Install (staFirstNode);
   srcApp1.Start (Seconds (3.0));
-  srcApp1.Stop (Seconds (3.1));
+  srcApp1.Stop (Seconds (3.5));
 
   ApplicationContainer srcApp2;
   OnOffHelper src2 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
@@ -325,7 +334,7 @@ main (int argc, char *argv[])
   src2.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp2 = src2.Install (staSecondNode);
   srcApp2.Start (Seconds (3.0));
-  srcApp2.Stop (Seconds (3.1));
+  srcApp2.Stop (Seconds (3.5));
 
 
   /* STA2 transmit to AP and STA3 transmit to STA1. */
@@ -337,8 +346,8 @@ main (int argc, char *argv[])
   src3.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   src3.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp3 = src3.Install (staSecondNode);
-  srcApp3.Start (Seconds (3.1));
-  srcApp3.Stop (Seconds (3.2));
+  srcApp3.Start (Seconds (3.5));
+  srcApp3.Stop (Seconds (4.0));
 
   ApplicationContainer srcApp4;
   OnOffHelper src4 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
@@ -348,8 +357,8 @@ main (int argc, char *argv[])
   src4.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   src4.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp4 = src4.Install (staThirdNode);
-  srcApp4.Start (Seconds (3.1));
-  srcApp4.Stop (Seconds (3.2));
+  srcApp4.Start (Seconds (3.5));
+  srcApp4.Stop (Seconds (4.0));
 
 
   /* STA3 transmit to AP and STA1 transmit to STA2. */
@@ -361,8 +370,8 @@ main (int argc, char *argv[])
   src5.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   src5.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp5 = src5.Install (staThirdNode);
-  srcApp5.Start (Seconds (3.2));
-  srcApp5.Stop (Seconds (3.3));
+  srcApp5.Start (Seconds (4.0));
+  srcApp5.Stop (Seconds (4.5));
 
   ApplicationContainer srcApp6;
   OnOffHelper src6 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
@@ -372,153 +381,8 @@ main (int argc, char *argv[])
   src6.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   src6.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
   srcApp6 = src6.Install (staFirstNode);
-  srcApp6.Start (Seconds (3.2));
-  srcApp6.Stop (Seconds (3.3));
-
-
-
-std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std::endl;
-
-  if (minThroughputNum == 1) // STA1 do not directly transmit to AP
-  {
-      ApplicationContainer srcApp7;
-      OnOffHelper src7 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src7.SetAttribute ("MaxBytes", UintegerValue (0));
-      src7.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src7.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src7.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src7.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp7 = src7.Install (staSecondNode);
-      srcApp7.Start (Seconds (3.3));
-      srcApp7.Stop (Seconds (4.3));
-
-      ApplicationContainer srcApp8;
-      OnOffHelper src8 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
-      src8.SetAttribute ("MaxBytes", UintegerValue (0));
-      src8.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src8.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src8.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src8.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp8 = src8.Install (staFirstNode);
-      srcApp8.Start (Seconds (3.3));
-      srcApp8.Stop (Seconds (4.3));
-       
-      ApplicationContainer srcApp9;
-      OnOffHelper src9 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src9.SetAttribute ("MaxBytes", UintegerValue (0));
-      src9.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src9.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src9.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src9.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp9 = src9.Install (staThirdNode);
-      srcApp9.Start (Seconds (4.3));
-      srcApp9.Stop (Seconds (5.3));
-
-      ApplicationContainer srcApp10;
-      OnOffHelper src10 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
-      src10.SetAttribute ("MaxBytes", UintegerValue (0));
-      src10.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src10.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src10.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src10.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp10 = src10.Install (staFirstNode);
-      srcApp10.Start (Seconds (4.3));
-      srcApp10.Stop (Seconds (5.3));
-  }
-
-  else if (minThroughputNum == 2) // STA2 do not directly transmit to AP
-  {
-      ApplicationContainer srcApp11;
-      OnOffHelper src11 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src11.SetAttribute ("MaxBytes", UintegerValue (0));
-      src11.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src11.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src11.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src11.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp11 = src11.Install (staFirstNode);
-      srcApp11.Start (Seconds (3.3));
-      srcApp11.Stop (Seconds (4.3));
-
-      ApplicationContainer srcApp12;
-      OnOffHelper src12 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
-      src12.SetAttribute ("MaxBytes", UintegerValue (0));
-      src12.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src12.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src12.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src12.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp12 = src12.Install (staSecondNode);
-      srcApp12.Start (Seconds (3.3));
-      srcApp12.Stop (Seconds (4.3));
-
-      ApplicationContainer srcApp13;
-      OnOffHelper src13 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src13.SetAttribute ("MaxBytes", UintegerValue (0));
-      src13.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src13.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src13.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src13.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp13 = src13.Install (staThirdNode);
-      srcApp13.Start (Seconds (4.3));
-      srcApp13.Stop (Seconds (5.3));
-
-      ApplicationContainer srcApp14;
-      OnOffHelper src14 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
-      src14.SetAttribute ("MaxBytes", UintegerValue (0));
-      src14.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src14.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src14.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src14.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp14 = src14.Install (staSecondNode);
-      srcApp14.Start (Seconds (4.3));
-      srcApp14.Stop (Seconds (5.3));
-  }
-
-  else if (minThroughputNum == 3) // STA3 do not directly transmit to AP
-  {
-      ApplicationContainer srcApp15;
-      OnOffHelper src15 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src15.SetAttribute ("MaxBytes", UintegerValue (0));
-      src15.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src15.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src15.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src15.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp15 = src15.Install (staFirstNode);
-      srcApp15.Start (Seconds (3.3));
-      srcApp15.Stop (Seconds (4.3));
-
-      ApplicationContainer srcApp16;
-      OnOffHelper src16 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
-      src16.SetAttribute ("MaxBytes", UintegerValue (0));
-      src16.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src16.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src16.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src16.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp16 = src16.Install (staThirdNode);
-      srcApp16.Start (Seconds (3.3));
-      srcApp16.Stop (Seconds (4.3));
-
-      ApplicationContainer srcApp17;
-      OnOffHelper src17 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src17.SetAttribute ("MaxBytes", UintegerValue (0));
-      src17.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src17.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src17.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src17.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp17 = src17.Install (staSecondNode);
-      srcApp17.Start (Seconds (4.3));
-      srcApp17.Stop (Seconds (5.3));
-
-      ApplicationContainer srcApp18;
-      OnOffHelper src18 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
-      src18.SetAttribute ("MaxBytes", UintegerValue (0));
-      src18.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src18.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src18.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src18.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp18 = src18.Install (staThirdNode);
-      srcApp18.Start (Seconds (4.3));
-      srcApp18.Stop (Seconds (5.3));
-  }
+  srcApp6.Start (Seconds (4.0));
+  srcApp6.Stop (Seconds (4.5));
 
 
   /* Schedule Throughput Calulcations */
@@ -562,6 +426,10 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
   staSecondWifiMac->TraceConnectWithoutContext ("Assoc", MakeBoundCallback (&StationAssoicated, staSecondWifiMac));
   staThirdWifiMac->TraceConnectWithoutContext ("Assoc", MakeBoundCallback (&StationAssoicated, staThirdWifiMac));
 
+/*  staFirstWifiMac->TraceConnectWithoutContext ("SLSCompleted", MakeBoundCallback (&SLSCompleted, staFirstWifiMac));
+  staSecondWifiMac->TraceConnectWithoutContext ("SLSCompleted", MakeBoundCallback (&SLSCompleted, staSecondWifiMac));
+  staThirdWifiMac->TraceConnectWithoutContext ("SLSCompleted", MakeBoundCallback (&SLSCompleted, staThirdWifiMac));
+*/
   Simulator::Stop (Seconds (simulationTime));
   Simulator::Run ();
   Simulator::Destroy ();
