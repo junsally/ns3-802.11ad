@@ -375,11 +375,24 @@ main (int argc, char *argv[])
   srcApp6.Start (Seconds (3.2));
   srcApp6.Stop (Seconds (3.3));
 
+/*
+  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
+                       staApNodeLastTotalRx, staApNodeAverageThroughput);
 
+  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (1)),
+                       staFirstNodeLastTotalRx, staFirstNodeAverageThroughput);
+
+  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (2)),
+                       staSecondNodeLastTotalRx, staSecondNodeAverageThroughput);
+
+  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (3)),
+                       staThirdNodeLastTotalRx, staThirdNodeAverageThroughput);
+*/
 
 std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std::endl;
-
-  if (minThroughputNum == 1) // STA1 do not directly transmit to AP
+  int test = 1;
+//  if (minThroughputNum == 1) // STA1 do not directly transmit to AP
+  if (test == 1)
   {
       ApplicationContainer srcApp7;
       OnOffHelper src7 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -533,7 +546,6 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
 
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (3)),
                        staThirdNodeLastTotalRx, staThirdNodeAverageThroughput);
-
 
 
   /* Enable Traces */
