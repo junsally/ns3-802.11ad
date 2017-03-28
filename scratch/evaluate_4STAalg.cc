@@ -305,7 +305,7 @@ main (int argc, char *argv[])
   double staThirdNodeAverageThroughput = 0;
 
   /* STA1 transmit to AP and STA2 transmit to STA3. */
-  ApplicationContainer srcApp1;
+/*  ApplicationContainer srcApp1;
   OnOffHelper src1 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
   src1.SetAttribute ("MaxBytes", UintegerValue (0));
   src1.SetAttribute ("PacketSize", UintegerValue (payloadSize));
@@ -326,10 +326,10 @@ main (int argc, char *argv[])
   srcApp2 = src2.Install (staSecondNode);
   srcApp2.Start (Seconds (3.0));
   srcApp2.Stop (Seconds (3.1));
-
+*/
 
   /* STA2 transmit to AP and STA3 transmit to STA1. */
-  ApplicationContainer srcApp3;
+/*  ApplicationContainer srcApp3;
   OnOffHelper src3 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
   src3.SetAttribute ("MaxBytes", UintegerValue (0));
   src3.SetAttribute ("PacketSize", UintegerValue (payloadSize));
@@ -350,10 +350,10 @@ main (int argc, char *argv[])
   srcApp4 = src4.Install (staThirdNode);
   srcApp4.Start (Seconds (3.1));
   srcApp4.Stop (Seconds (3.2));
-
+*/
 
   /* STA3 transmit to AP and STA1 transmit to STA2. */
-  ApplicationContainer srcApp5;
+/*  ApplicationContainer srcApp5;
   OnOffHelper src5 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
   src5.SetAttribute ("MaxBytes", UintegerValue (0));
   src5.SetAttribute ("PacketSize", UintegerValue (payloadSize));
@@ -374,7 +374,7 @@ main (int argc, char *argv[])
   srcApp6 = src6.Install (staFirstNode);
   srcApp6.Start (Seconds (3.2));
   srcApp6.Stop (Seconds (3.3));
-
+*/
 /*
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
                        staApNodeLastTotalRx, staApNodeAverageThroughput);
@@ -390,7 +390,7 @@ main (int argc, char *argv[])
 */
 
 std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std::endl;
-  int test = 1;
+/*  int test = 1;
 //  if (minThroughputNum == 1) // STA1 do not directly transmit to AP
   if (test == 1)
   {
@@ -533,7 +533,7 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
       srcApp18.Stop (Seconds (5.3));
   }
 
-
+*/
   /* Schedule Throughput Calulcations */
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
                        staApNodeLastTotalRx, staApNodeAverageThroughput);
