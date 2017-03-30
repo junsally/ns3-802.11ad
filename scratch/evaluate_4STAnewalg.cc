@@ -9,6 +9,9 @@
 #include "ns3/network-module.h"
 #include "ns3/wifi-module.h"
 #include "common-functions.h"
+#include "math.h"
+
+#define PI 3.141592653
 
 /**
  * This script is used to evaluate allocation of Static Service Periods in IEEE 802.11ad.
@@ -53,47 +56,16 @@ Ptr<DmgStaWifiMac> staThirdWifiMac;
 
 /*** Access Point Variables ***/
 uint8_t assoicatedStations = 0;           /* Total number of assoicated stations with the AP */
-uint8_t stationsTrained = 0;              /* Number of BF trained stations */
-bool scheduledStaticPeriods = false;      /* Flag to indicate whether we scheduled Static Service Periods or not */
-uint8_t ThroughputCount = 0;              /* Calculate how many times the throughput is calculated. */ 
-double totalThroughput = 0;               /* Calculate the total throughput of concurrent transmission. */
-uint8_t minThroughputNum = 0;             /* Record the minimum throughput station transmission. */
-double minThroughput = 3000.0;            /* Record the minimum throughput value. */    
-uint8_t compareCount = 0;                 /* Record the number of comparisions. */
 
-/*** Service Period ***/
-uint16_t servicePeriodDuration = 3200;    /* The duration of the allocated service periods in MicroSeconds */
 
 void
 CalculateThroughput (Ptr<PacketSink> sink, uint64_t lastTotalRx, double averageThroughput)
 {
-  if (ThroughputCount == 4)
-  {
-     ThroughputCount = 0;
-     totalThroughput = 0;
-  }
-
   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
   double cur = (sink->GetTotalRx() - lastTotalRx) * (double) 8/1e5;     /* Convert Application RX Packets to MBits. */
   std::cout << "junjun " << now.GetSeconds () << '\t' << cur << std::endl;
   lastTotalRx = sink->GetTotalRx ();
   averageThroughput += cur;
-  totalThroughput += cur;
-  ThroughputCount++;
-  std::cout << "sally test CalculateThroughput, totalThroughput=" << totalThroughput << ", ThroughputCount=" << ThroughputCount << std::endl;
-
-  if ((now.GetSeconds () < 3.4) && (ThroughputCount == 4))
-  {
-     compareCount++;
-std::cout << "sally test compareCount=" << compareCount << ", minThroughputNum=" << minThroughputNum << std::endl;
-     if (minThroughput > totalThroughput) 
-     {
-        minThroughput = totalThroughput;
-        minThroughputNum = compareCount; 
-     }
-  }
-  std::cout << "sally test CalculateThroughput, minThroughput=" << minThroughput << ", minThroughputNum=" << minThroughputNum << ", time=" << now.GetSeconds () << std::endl;
-
   Simulator::Schedule (MilliSeconds (100), &CalculateThroughput, sink, lastTotalRx, averageThroughput);
 }
 
@@ -137,10 +109,13 @@ main (int argc, char *argv[])
   double simulationTime = 5.31;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 12;                        /* Number of sectors in total. */
+  
+  double sta1_xPos = 1;                         /* X axis position of station 1. */
+  double sta1_yPos = 0;                         /* Y axis position of station 1. */
   double sta2_xPos = 0;                         /* X axis position of station 2. */
   double sta2_yPos = 1;                         /* Y axis position of station 2. */
   double sta3_xPos = 1;                         /* X axis position of station 3. */
-  double sta3_yPos = 1;                         /* Y axis position of station 2. */
+  double sta3_yPos = 1;                         /* Y axis position of station 3. */
   double radEfficiency = 0.9;                   /* radiation efficiency of the directional antenna. */
   double txPower = 60.0;                       /* transmit power in dBm. */
   double threshold = -20;                       /* CCA mode1 threshold */
@@ -152,12 +127,13 @@ main (int argc, char *argv[])
   cmd.AddValue ("dataRate", "Payload size in bytes", dataRate);
   cmd.AddValue ("msduAggregation", "The maximum aggregation size for A-MSDU in Bytes", msduAggregationSize);
   cmd.AddValue ("queueSize", "The size of the Wifi Mac Queue", queueSize);
-  cmd.AddValue ("duration", "The duration of service period in MicroSeconds", servicePeriodDuration);
   cmd.AddValue ("phyMode", "802.11ad PHY Mode", phyMode);
   cmd.AddValue ("verbose", "turn on all WifiNetDevice log components", verbose);
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("sectorNum", "Number of sectors in total", sectorNum);
+  cmd.AddValue ("sta1x", "X axis position of station 1", sta1_xPos);
+  cmd.AddValue ("sta1y", "Y axis position of station 1", sta1_yPos);
   cmd.AddValue ("sta2x", "X axis position of station 2", sta2_xPos);
   cmd.AddValue ("sta2y", "Y axis position of station 2", sta2_yPos);
   cmd.AddValue ("sta3x", "X axis position of station 3", sta3_xPos);
@@ -262,7 +238,7 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
   MobilityHelper mobility;
   Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
   positionAlloc->Add (Vector (0.0, 0.0, 0.0));   /* PCP/AP */
-  positionAlloc->Add (Vector (+1.0, 0.0, 0.0));   /* first STA */
+  positionAlloc->Add (Vector (sta1_xPos, sta1_yPos, 0.0));   /* first STA */
   positionAlloc->Add (Vector (sta2_xPos, sta2_yPos, 0.0));   /* second STA */
   positionAlloc->Add (Vector (sta3_xPos, sta3_yPos, 0.0));   /* third STA */
 
@@ -294,8 +270,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
   ApplicationContainer sinks = sinkHelper.Install (NodeContainer (apNode, staFirstNode, staSecondNode, staThirdNode));
 
   /** East Node Variables **/
-  uint64_t staApNodeLastTotalRx = 0;
-  double staApNodeAverageThroughput = 0;
+  uint64_t apNodeLastTotalRx = 0;
+  double apNodeAverageThroughput = 0;
 
   uint64_t staFirstNodeLastTotalRx = 0;
   double staFirstNodeAverageThroughput = 0;
@@ -306,95 +282,92 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
   uint64_t staThirdNodeLastTotalRx = 0;
   double staThirdNodeAverageThroughput = 0;
 
-  /* STA1 transmit to AP and STA2 transmit to STA3. */
-/*  ApplicationContainer srcApp1;
-  OnOffHelper src1 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-  src1.SetAttribute ("MaxBytes", UintegerValue (0));
-  src1.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src1.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp1 = src1.Install (staFirstNode);
-  srcApp1.Start (Seconds (3.0));
-  srcApp1.Stop (Seconds (3.1));
+  /* calculate sector number */
+  double positionArray[4][2] = {{0,0}, {sta1_xPos, sta1_yPos}, {sta2_xPos, sta2_yPos}, {sta3_xPos, sta3_yPos}};
+  int selectedSEC[4][4] = 0;
+  double deltaX = 0;
+  double deltaY = 0;
+  double beamwidthDegree = 360 / sectorNum;
 
-  ApplicationContainer srcApp2;
-  OnOffHelper src2 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
-  src2.SetAttribute ("MaxBytes", UintegerValue (0));
-  src2.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src2.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src2.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src2.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp2 = src2.Install (staSecondNode);
-  srcApp2.Start (Seconds (3.0));
-  srcApp2.Stop (Seconds (3.1));
-*/
+  for (int m=0; m<4; m++)
+  {
+      for (int n=0; n<4; n++)
+      {
+          deltaX = positionArray[n][0] - positionArray[m][0];
+          deltaY = positionArray[n][1] - positionArray[m][1];
+          if ((deltaX == 0) && (deltaY == 0)) selectedSEC[m][n] = 0;
+          else if ((deltaX == 0) && (deltaY > 0)) selectedSEC[m][n] = ceil(90/beamwidthDegree);
+          else if ((deltaX == 0) && (deltaY < 0)) selectedSEC[m][n] = ceil(270/beamwidthDegree);
+          else if ((deltaX > 0) && (deltaY == 0)) selectedSEC[m][n] = 1;
+          else if ((deltaX < 0) && (deltaY == 0)) selectedSEC[m][n] = ceil(180/beamwidthDegree);
+          else if ((deltaX > 0) && (deltaY > 0)) selectedSEC[m][n] = ceil(atan(deltaY/deltaX)*180/PI/beamwidthDegree);
+          else if ((deltaX > 0) && (deltaY < 0)) selectedSEC[m][n] = ceil((360+atan(deltaY/deltaX)*180/PI)/beamwidthDegree);
+          else selectedSEC[m][n] = ceil((180+atan(deltaY/deltaX)*180/PI)/beamwidthDegree);
+      }
+  }
 
-  /* STA2 transmit to AP and STA3 transmit to STA1. */
-/*  ApplicationContainer srcApp3;
-  OnOffHelper src3 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-  src3.SetAttribute ("MaxBytes", UintegerValue (0));
-  src3.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src3.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src3.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src3.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp3 = src3.Install (staSecondNode);
-  srcApp3.Start (Seconds (3.1));
-  srcApp3.Stop (Seconds (3.2));
+  /* test selectedSEC */
+  for (int m=0; m<4; m++)
+  {
+      for (int n=0; n<4; n++)
+      {
+          std::cout << "sally test selectedSEC: " << selectedSEC[m][n] << '\t' << std::endl;
+      }
+  }
+ 
+  /* tell which transmissions has the same best sector */
+  int nonDirectSTA = 0;
+  bool sameSector[4][3] = false;
+  for (int m=0; m<4; m++)
+  {
+      if (m == 0)
+      {
+          if (selectedSEC[0][1] == selectedSEC[0][2]) {sameSector[0][0] = true; sameSector[0][1] = true;}
+          if (selectedSEC[0][1] == selectedSEC[0][3]) {sameSector[0][0] = true; sameSector[0][2] = true;}
+          if (selectedSEC[0][2] == selectedSEC[0][3]) {sameSector[0][1] = true; sameSector[0][2] = true;}
+      }
+      else if (m == 1)
+      {
+          if (selectedSEC[1][0] == selectedSEC[1][2]) {sameSector[1][0] = true; sameSector[1][1] = true;}
+          if (selectedSEC[1][0] == selectedSEC[1][3]) {sameSector[1][0] = true; sameSector[1][2] = true;}
+          if (selectedSEC[1][2] == selectedSEC[1][3]) {sameSector[1][1] = true; sameSector[1][2] = true;}
+      }
+      else if (m == 2)
+      {
+          if (selectedSEC[2][0] == selectedSEC[2][1]) {sameSector[2][0] = true; sameSector[2][1] = true;}
+          if (selectedSEC[2][0] == selectedSEC[2][3]) {sameSector[2][0] = true; sameSector[2][2] = true;}
+          if (selectedSEC[2][1] == selectedSEC[2][3]) {sameSector[2][1] = true; sameSector[2][2] = true;}
+      }
+      else
+      {
+          if (selectedSEC[3][0] == selectedSEC[3][1]) {sameSector[3][0] = true; sameSector[3][1] = true;}
+          if (selectedSEC[3][0] == selectedSEC[3][2]) {sameSector[3][0] = true; sameSector[3][2] = true;}
+          if (selectedSEC[3][1] == selectedSEC[3][2]) {sameSector[3][1] = true; sameSector[3][2] = true;}
+      }
 
-  ApplicationContainer srcApp4;
-  OnOffHelper src4 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
-  src4.SetAttribute ("MaxBytes", UintegerValue (0));
-  src4.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src4.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src4.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src4.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp4 = src4.Install (staThirdNode);
-  srcApp4.Start (Seconds (3.1));
-  srcApp4.Stop (Seconds (3.2));
-*/
+  }
 
-  /* STA3 transmit to AP and STA1 transmit to STA2. */
-/*  ApplicationContainer srcApp5;
-  OnOffHelper src5 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-  src5.SetAttribute ("MaxBytes", UintegerValue (0));
-  src5.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src5.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src5.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src5.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp5 = src5.Install (staThirdNode);
-  srcApp5.Start (Seconds (3.2));
-  srcApp5.Stop (Seconds (3.3));
+  /* test sameSector */
+  for (int m=0; m<4; m++)
+  {
+      for (int n=0; n<3; n++)
+      {
+          std::cout << "sally test sameSector: " << selectedSEC[m][n] << '\t' << std::endl;
+      }
+  }
 
-  ApplicationContainer srcApp6;
-  OnOffHelper src6 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
-  src6.SetAttribute ("MaxBytes", UintegerValue (0));
-  src6.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-  src6.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-  src6.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  src6.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-  srcApp6 = src6.Install (staFirstNode);
-  srcApp6.Start (Seconds (3.2));
-  srcApp6.Stop (Seconds (3.3));
-*/
+  /* algorithm for transmission allocation*/
+  for (int m=0; m<4; m++)
+  {
+      for (int n=0; n<3; n++)
+      {
+          
+      }
+  }
+
+  /* allocate transmissions */
 /*
-  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
-                       staApNodeLastTotalRx, staApNodeAverageThroughput);
-
-  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (1)),
-                       staFirstNodeLastTotalRx, staFirstNodeAverageThroughput);
-
-  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (2)),
-                       staSecondNodeLastTotalRx, staSecondNodeAverageThroughput);
-
-  Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (3)),
-                       staThirdNodeLastTotalRx, staThirdNodeAverageThroughput);
-*/
-
-std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std::endl;
-/*  int test = 1;
-//  if (minThroughputNum == 1) // STA1 do not directly transmit to AP
-  if (test == 1)
+  if (nonDirectSTA == 1) // STA1 do not directly transmit to AP
   {
       ApplicationContainer srcApp7;
       OnOffHelper src7 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -441,7 +414,7 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
       srcApp10.Stop (Seconds (5.3));
   }
 
-  else if (minThroughputNum == 2) // STA2 do not directly transmit to AP
+  else if (nonDirectSTA == 2) // STA2 do not directly transmit to AP
   {
       ApplicationContainer srcApp11;
       OnOffHelper src11 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -488,7 +461,7 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
       srcApp14.Stop (Seconds (5.3));
   }
 
-  else if (minThroughputNum == 3) // STA3 do not directly transmit to AP
+  else if (nonDirectSTA == 3) // STA3 do not directly transmit to AP
   {
       ApplicationContainer srcApp15;
       OnOffHelper src15 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -538,7 +511,7 @@ std::cout << "sally test minThroughputNum in main: " << minThroughputNum << std:
 */
   /* Schedule Throughput Calulcations */
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
-                       staApNodeLastTotalRx, staApNodeAverageThroughput);
+                       apNodeLastTotalRx, apNodeAverageThroughput);
 
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (1)),
                        staFirstNodeLastTotalRx, staFirstNodeAverageThroughput);
