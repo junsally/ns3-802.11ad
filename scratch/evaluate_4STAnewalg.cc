@@ -56,16 +56,28 @@ Ptr<DmgStaWifiMac> staThirdWifiMac;
 
 /*** Access Point Variables ***/
 uint8_t assoicatedStations = 0;           /* Total number of assoicated stations with the AP */
+uint8_t ThroughputCount = 0;              /* Calculate how many times the throughput is calculated. */
+double totalThroughput = 0;               /* Calculate the total throughput of concurrent transmission. */
 
 
 void
 CalculateThroughput (Ptr<PacketSink> sink, uint64_t lastTotalRx, double averageThroughput)
 {
+  if (ThroughputCount == 4)
+  {
+     ThroughputCount = 0;
+     totalThroughput = 0;
+  }
+
   Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
   double cur = (sink->GetTotalRx() - lastTotalRx) * (double) 8/1e5;     /* Convert Application RX Packets to MBits. */
   std::cout << "junjun " << now.GetSeconds () << '\t' << cur << std::endl;
   lastTotalRx = sink->GetTotalRx ();
   averageThroughput += cur;
+  totalThroughput += cur;
+  ThroughputCount++;
+  std::cout << "sally test CalculateThroughput, totalThroughput=" << totalThroughput << ", ThroughputCount=" << ThroughputCount << std::endl;
+
   Simulator::Schedule (MilliSeconds (100), &CalculateThroughput, sink, lastTotalRx, averageThroughput);
 }
 
@@ -106,7 +118,7 @@ main (int argc, char *argv[])
   uint32_t queueSize = 10;                   /* Wifi Mac Queue Size. */
   string phyMode = "DMG_MCS24";                 /* Type of the Physical Layer. */
   bool verbose = false;                         /* Print Logging Information. */
-  double simulationTime = 5.31;                   /* Simulation time in seconds. */
+  double simulationTime = 5.01;                   /* Simulation time in seconds. */
   bool pcapTracing = false;                     /* PCAP Tracing is enabled or not. */
   uint16_t sectorNum = 12;                        /* Number of sectors in total. */
   
@@ -284,7 +296,7 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
 
   /* calculate sector number */
   double positionArray[4][2] = {{0,0}, {sta1_xPos, sta1_yPos}, {sta2_xPos, sta2_yPos}, {sta3_xPos, sta3_yPos}};
-  int selectedSEC[4][4] = 0;
+  int selectedSEC[4][4] = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
   double deltaX = 0;
   double deltaY = 0;
   double beamwidthDegree = 360 / sectorNum;
@@ -311,38 +323,40 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
   {
       for (int n=0; n<4; n++)
       {
-          std::cout << "sally test selectedSEC: " << selectedSEC[m][n] << '\t' << std::endl;
+          std::cout << "sally test selectedSEC: " << selectedSEC[m][n] << std::endl;
       }
   }
  
   /* tell which transmissions has the same best sector */
   int nonDirectSTA = 0;
-  bool sameSector[4][3] = false;
+  bool sameSector[4][3] = {{false, false, false}, {false, false, false}, {false, false, false}, {false, false, false}};
+  bool isAllCapable[4] = {true, true, true, true};
+ 
   for (int m=0; m<4; m++)
   {
       if (m == 0)
       {
-          if (selectedSEC[0][1] == selectedSEC[0][2]) {sameSector[0][0] = true; sameSector[0][1] = true;}
-          if (selectedSEC[0][1] == selectedSEC[0][3]) {sameSector[0][0] = true; sameSector[0][2] = true;}
-          if (selectedSEC[0][2] == selectedSEC[0][3]) {sameSector[0][1] = true; sameSector[0][2] = true;}
+          if (selectedSEC[0][1] == selectedSEC[0][2]) {sameSector[0][0] = true; sameSector[0][1] = true; isAllCapable[0] = false;}
+          if (selectedSEC[0][1] == selectedSEC[0][3]) {sameSector[0][0] = true; sameSector[0][2] = true; isAllCapable[0] = false;}
+          if (selectedSEC[0][2] == selectedSEC[0][3]) {sameSector[0][1] = true; sameSector[0][2] = true; isAllCapable[0] = false;}
       }
       else if (m == 1)
       {
-          if (selectedSEC[1][0] == selectedSEC[1][2]) {sameSector[1][0] = true; sameSector[1][1] = true;}
-          if (selectedSEC[1][0] == selectedSEC[1][3]) {sameSector[1][0] = true; sameSector[1][2] = true;}
-          if (selectedSEC[1][2] == selectedSEC[1][3]) {sameSector[1][1] = true; sameSector[1][2] = true;}
+          if (selectedSEC[1][0] == selectedSEC[1][2]) {sameSector[1][0] = true; sameSector[1][1] = true; isAllCapable[1] = false;}
+          if (selectedSEC[1][0] == selectedSEC[1][3]) {sameSector[1][0] = true; sameSector[1][2] = true; isAllCapable[1] = false;}
+          if (selectedSEC[1][2] == selectedSEC[1][3]) {sameSector[1][1] = true; sameSector[1][2] = true; isAllCapable[1] = false;}
       }
       else if (m == 2)
       {
-          if (selectedSEC[2][0] == selectedSEC[2][1]) {sameSector[2][0] = true; sameSector[2][1] = true;}
-          if (selectedSEC[2][0] == selectedSEC[2][3]) {sameSector[2][0] = true; sameSector[2][2] = true;}
-          if (selectedSEC[2][1] == selectedSEC[2][3]) {sameSector[2][1] = true; sameSector[2][2] = true;}
+          if (selectedSEC[2][0] == selectedSEC[2][1]) {sameSector[2][0] = true; sameSector[2][1] = true; isAllCapable[2] = false;}
+          if (selectedSEC[2][0] == selectedSEC[2][3]) {sameSector[2][0] = true; sameSector[2][2] = true; isAllCapable[2] = false;}
+          if (selectedSEC[2][1] == selectedSEC[2][3]) {sameSector[2][1] = true; sameSector[2][2] = true; isAllCapable[2] = false;}
       }
       else
       {
-          if (selectedSEC[3][0] == selectedSEC[3][1]) {sameSector[3][0] = true; sameSector[3][1] = true;}
-          if (selectedSEC[3][0] == selectedSEC[3][2]) {sameSector[3][0] = true; sameSector[3][2] = true;}
-          if (selectedSEC[3][1] == selectedSEC[3][2]) {sameSector[3][1] = true; sameSector[3][2] = true;}
+          if (selectedSEC[3][0] == selectedSEC[3][1]) {sameSector[3][0] = true; sameSector[3][1] = true; isAllCapable[3] = false;}
+          if (selectedSEC[3][0] == selectedSEC[3][2]) {sameSector[3][0] = true; sameSector[3][2] = true; isAllCapable[3] = false;}
+          if (selectedSEC[3][1] == selectedSEC[3][2]) {sameSector[3][1] = true; sameSector[3][2] = true; isAllCapable[3] = false;}
       }
 
   }
@@ -350,23 +364,48 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
   /* test sameSector */
   for (int m=0; m<4; m++)
   {
+      std::cout << "sally test isAllCapable: " << isAllCapable[m] << std::endl;
       for (int n=0; n<3; n++)
       {
-          std::cout << "sally test sameSector: " << selectedSEC[m][n] << '\t' << std::endl;
+          std::cout << "sally test sameSector: " << sameSector[m][n] << std::endl;
       }
   }
 
   /* algorithm for transmission allocation*/
+  int state = 1;
   for (int m=0; m<4; m++)
   {
-      for (int n=0; n<3; n++)
+      if (isAllCapable[m] == true) continue;
+      else
       {
-          
+          for (int n=0; n<3; n++)
+          {
+             // to be filled
+          }
       }
   }
 
-  /* allocate transmissions */
-/*
+std::cout << "sally test "<< "state=" << state << std::endl;
+
+int deltaSEC = 0;
+int delta1 = abs(selectedSEC[0][2]-selectedSEC[0][3]);
+int delta2 = abs(selectedSEC[0][1]-selectedSEC[0][3]);
+int delta3 = abs(selectedSEC[0][1]-selectedSEC[0][2]);
+if (delta1 > 6) delta1 = 12 - delta1;
+if (delta2 > 6) delta2 = 12 - delta2;
+if (delta3 > 6) delta3 = 12 - delta3;
+
+std::cout << "sally test delta1=" << delta1 << ", delta2=" << delta2 << ", delta3=" << delta3 << std::endl;
+
+/* allocate transmissions */
+if (state == 1)
+{
+  if (deltaSEC < delta1) {deltaSEC=delta1; nonDirectSTA = 1;}
+  if (deltaSEC < delta2) {deltaSEC=delta2; nonDirectSTA = 2;}
+  if (deltaSEC < delta3) {deltaSEC=delta3; nonDirectSTA = 3;}
+
+std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << deltaSEC << std::endl;
+
   if (nonDirectSTA == 1) // STA1 do not directly transmit to AP
   {
       ApplicationContainer srcApp7;
@@ -377,8 +416,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src7.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src7.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp7 = src7.Install (staSecondNode);
-      srcApp7.Start (Seconds (3.3));
-      srcApp7.Stop (Seconds (4.3));
+      srcApp7.Start (Seconds (3.0));
+      srcApp7.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp8;
       OnOffHelper src8 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
@@ -388,8 +427,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src8.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src8.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp8 = src8.Install (staFirstNode);
-      srcApp8.Start (Seconds (3.3));
-      srcApp8.Stop (Seconds (4.3));
+      srcApp8.Start (Seconds (3.0));
+      srcApp8.Stop (Seconds (4.0));
        
       ApplicationContainer srcApp9;
       OnOffHelper src9 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -399,8 +438,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src9.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src9.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp9 = src9.Install (staThirdNode);
-      srcApp9.Start (Seconds (4.3));
-      srcApp9.Stop (Seconds (5.3));
+      srcApp9.Start (Seconds (4.0));
+      srcApp9.Stop (Seconds (5.0));
 
       ApplicationContainer srcApp10;
       OnOffHelper src10 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
@@ -410,8 +449,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src10.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src10.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp10 = src10.Install (staFirstNode);
-      srcApp10.Start (Seconds (4.3));
-      srcApp10.Stop (Seconds (5.3));
+      srcApp10.Start (Seconds (4.0));
+      srcApp10.Stop (Seconds (5.0));
   }
 
   else if (nonDirectSTA == 2) // STA2 do not directly transmit to AP
@@ -424,8 +463,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src11.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src11.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp11 = src11.Install (staFirstNode);
-      srcApp11.Start (Seconds (3.3));
-      srcApp11.Stop (Seconds (4.3));
+      srcApp11.Start (Seconds (3.0));
+      srcApp11.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp12;
       OnOffHelper src12 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
@@ -435,8 +474,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src12.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src12.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp12 = src12.Install (staSecondNode);
-      srcApp12.Start (Seconds (3.3));
-      srcApp12.Stop (Seconds (4.3));
+      srcApp12.Start (Seconds (3.0));
+      srcApp12.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp13;
       OnOffHelper src13 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -446,8 +485,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src13.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src13.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp13 = src13.Install (staThirdNode);
-      srcApp13.Start (Seconds (4.3));
-      srcApp13.Stop (Seconds (5.3));
+      srcApp13.Start (Seconds (4.0));
+      srcApp13.Stop (Seconds (5.0));
 
       ApplicationContainer srcApp14;
       OnOffHelper src14 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
@@ -457,8 +496,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src14.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src14.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp14 = src14.Install (staSecondNode);
-      srcApp14.Start (Seconds (4.3));
-      srcApp14.Stop (Seconds (5.3));
+      srcApp14.Start (Seconds (4.0));
+      srcApp14.Stop (Seconds (5.0));
   }
 
   else if (nonDirectSTA == 3) // STA3 do not directly transmit to AP
@@ -471,8 +510,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src15.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src15.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp15 = src15.Install (staFirstNode);
-      srcApp15.Start (Seconds (3.3));
-      srcApp15.Stop (Seconds (4.3));
+      srcApp15.Start (Seconds (3.0));
+      srcApp15.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp16;
       OnOffHelper src16 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
@@ -482,8 +521,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src16.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src16.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp16 = src16.Install (staThirdNode);
-      srcApp16.Start (Seconds (3.3));
-      srcApp16.Stop (Seconds (4.3));
+      srcApp16.Start (Seconds (3.0));
+      srcApp16.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp17;
       OnOffHelper src17 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
@@ -493,8 +532,8 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src17.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src17.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp17 = src17.Install (staSecondNode);
-      srcApp17.Start (Seconds (4.3));
-      srcApp17.Stop (Seconds (5.3));
+      srcApp17.Start (Seconds (4.0));
+      srcApp17.Stop (Seconds (5.0));
 
       ApplicationContainer srcApp18;
       OnOffHelper src18 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
@@ -504,11 +543,11 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
       src18.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src18.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
       srcApp18 = src18.Install (staThirdNode);
-      srcApp18.Start (Seconds (4.3));
-      srcApp18.Stop (Seconds (5.3));
+      srcApp18.Start (Seconds (4.0));
+      srcApp18.Stop (Seconds (5.0));
   }
+}
 
-*/
   /* Schedule Throughput Calulcations */
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
                        apNodeLastTotalRx, apNodeAverageThroughput);
