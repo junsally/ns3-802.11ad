@@ -296,7 +296,7 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
 
   /* calculate sector number */
   double positionArray[4][2] = {{0,0}, {sta1_xPos, sta1_yPos}, {sta2_xPos, sta2_yPos}, {sta3_xPos, sta3_yPos}};
-  int selectedSEC[4][4] = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
+  int selectedSEC[4][4] = {{0}};
   double deltaX = 0;
   double deltaY = 0;
   double beamwidthDegree = 360 / sectorNum;
@@ -329,7 +329,7 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
  
   /* tell which transmissions has the same best sector */
   int nonDirectSTA = 0;
-  bool sameSector[4][3] = {{false, false, false}, {false, false, false}, {false, false, false}, {false, false, false}};
+  bool sameSector[4][3] = {{false}};
   bool isAllCapable[4] = {true, true, true, true};
  
   for (int m=0; m<4; m++)
@@ -373,16 +373,72 @@ std::cout << "sally test phyMode: " << phyMode << std::endl;
 
   /* algorithm for transmission allocation*/
   int state = 1;
+  int concurrentSTA = 0;
+
   for (int m=0; m<4; m++)
   {
       if (isAllCapable[m] == true) continue;
-      else
+      else if ((sameSector[m][0] == true) && (sameSector[m][1] == true) && (sameSector[m][2] == true))
       {
-          for (int n=0; n<3; n++)
+          state = 3;
+          break;
+      }
+      else if (sameSector[m][0] == false)
+      {
+          if ((m == 0) || (m == 1))
           {
-             // to be filled
+              if ((isAllCapable[2] == true) && (isAllCapable[3] == true)) {state = 2; concurrentSTA = 1; break;}
+              else {state = 3; break;}
+          }
+          else if (m == 2)
+          {
+              if ((isAllCapable[1] == true) && (isAllCapable[3] == true)) {state = 2; concurrentSTA = 2; break;}
+              else {state = 3; break;}
+          }
+          else
+          {
+              if ((isAllCapable[1] == true) && (isAllCapable[2] == true)) {state = 2; concurrentSTA = 3; break;}
+              else {state = 3; break;}
           }
       }
+      else if (sameSector[m][1] == false)
+      {
+          if (m == 0)
+          {
+              if ((isAllCapable[1] == true) && (isAllCapable[3] == true)) {state = 2; concurrentSTA = 2; break;}
+              else {state = 3; break;}
+          }
+          else if ((m == 1) || (m == 2))
+          {
+              if ((isAllCapable[0] == true) && (isAllCapable[3] == true)) {state = 2; concurrentSTA = 3; break;}
+              else {state = 3; break;}
+          }
+          else
+          {
+              if ((isAllCapable[0] == true) && (isAllCapable[2] == true)) {state = 2; concurrentSTA = 2; break;}
+              else {state = 3; break;}
+          }
+      }
+      else if (sameSector[m][2] == false)
+      {
+          if (m == 0)
+          {
+              if ((isAllCapable[1] == true) && (isAllCapable[2] == true)) {state = 2; concurrentSTA = 3; break;}
+              else {state = 3; break;}
+          }
+          else if (m == 1)
+          {
+              if ((isAllCapable[0] == true) && (isAllCapable[2] == true)) {state = 2; concurrentSTA = 2; break;}
+              else {state = 3; break;}
+          }
+          else
+          {
+              if ((isAllCapable[0] == true) && (isAllCapable[1] == true)) {state = 2; concurrentSTA = 1; break;}
+              else {state = 3; break;}
+          }
+      }
+      else
+          std::cout << "invalid state of isAllCapable and sameSector." << std::endl;
   }
 
 std::cout << "sally test "<< "state=" << state << std::endl;
@@ -395,7 +451,12 @@ if (delta1 > 6) delta1 = 12 - delta1;
 if (delta2 > 6) delta2 = 12 - delta2;
 if (delta3 > 6) delta3 = 12 - delta3;
 
+double distance1 = sqrt (pow(sta1_xPos,2) + pow(sta1_yPos,2));
+double distance2 = sqrt (pow(sta2_xPos,2) + pow(sta2_yPos,2));
+double distance3 = sqrt (pow(sta3_xPos,2) + pow(sta3_yPos,2));
+
 std::cout << "sally test delta1=" << delta1 << ", delta2=" << delta2 << ", delta3=" << delta3 << std::endl;
+std::cout << "sally test distance1=" << distance1 << ", distance2=" << distance2 << ", distance3=" << distance3 << std::endl;
 
 /* allocate transmissions */
 if (state == 1)
@@ -408,6 +469,75 @@ std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << delt
 
   if (nonDirectSTA == 1) // STA1 do not directly transmit to AP
   {
+      ApplicationContainer srcApp1;
+      OnOffHelper src1 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+      src1.SetAttribute ("MaxBytes", UintegerValue (0));
+      src1.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src1.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp1 = src1.Install (staSecondNode);
+      srcApp1.Start (Seconds (3.0));
+      srcApp1.Stop (Seconds (4.0));
+
+      ApplicationContainer srcApp2;
+      OnOffHelper src2 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+      src2.SetAttribute ("MaxBytes", UintegerValue (0));
+      src2.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src2.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src2.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src2.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp2 = src2.Install (staFirstNode);
+      srcApp2.Start (Seconds (3.0));
+      srcApp2.Stop (Seconds (4.0));
+       
+      ApplicationContainer srcApp3;
+      OnOffHelper src3 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+      src3.SetAttribute ("MaxBytes", UintegerValue (0));
+      src3.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src3.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src3.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src3.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp3 = src3.Install (staThirdNode);
+      srcApp3.Start (Seconds (4.0));
+      srcApp3.Stop (Seconds (5.0));
+
+      ApplicationContainer srcApp4;
+      OnOffHelper src4 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
+      src4.SetAttribute ("MaxBytes", UintegerValue (0));
+      src4.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src4.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src4.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src4.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp4 = src4.Install (staFirstNode);
+      srcApp4.Start (Seconds (4.0));
+      srcApp4.Stop (Seconds (5.0));
+  }
+
+  else if (nonDirectSTA == 2) // STA2 do not directly transmit to AP
+  {
+      ApplicationContainer srcApp5;
+      OnOffHelper src5 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+      src5.SetAttribute ("MaxBytes", UintegerValue (0));
+      src5.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src5.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src5.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src5.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp5 = src5.Install (staFirstNode);
+      srcApp5.Start (Seconds (3.0));
+      srcApp5.Stop (Seconds (4.0));
+
+      ApplicationContainer srcApp6;
+      OnOffHelper src6 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+      src6.SetAttribute ("MaxBytes", UintegerValue (0));
+      src6.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+      src6.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+      src6.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+      src6.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+      srcApp6 = src6.Install (staSecondNode);
+      srcApp6.Start (Seconds (3.0));
+      srcApp6.Stop (Seconds (4.0));
+
       ApplicationContainer srcApp7;
       OnOffHelper src7 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
       src7.SetAttribute ("MaxBytes", UintegerValue (0));
@@ -415,21 +545,24 @@ std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << delt
       src7.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src7.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src7.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp7 = src7.Install (staSecondNode);
-      srcApp7.Start (Seconds (3.0));
-      srcApp7.Stop (Seconds (4.0));
+      srcApp7 = src7.Install (staThirdNode);
+      srcApp7.Start (Seconds (4.0));
+      srcApp7.Stop (Seconds (5.0));
 
       ApplicationContainer srcApp8;
-      OnOffHelper src8 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+      OnOffHelper src8 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
       src8.SetAttribute ("MaxBytes", UintegerValue (0));
       src8.SetAttribute ("PacketSize", UintegerValue (payloadSize));
       src8.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src8.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src8.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp8 = src8.Install (staFirstNode);
-      srcApp8.Start (Seconds (3.0));
-      srcApp8.Stop (Seconds (4.0));
-       
+      srcApp8 = src8.Install (staSecondNode);
+      srcApp8.Start (Seconds (4.0));
+      srcApp8.Stop (Seconds (5.0));
+  }
+
+  else if (nonDirectSTA == 3) // STA3 do not directly transmit to AP
+  {
       ApplicationContainer srcApp9;
       OnOffHelper src9 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
       src9.SetAttribute ("MaxBytes", UintegerValue (0));
@@ -437,9 +570,9 @@ std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << delt
       src9.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src9.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src9.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp9 = src9.Install (staThirdNode);
-      srcApp9.Start (Seconds (4.0));
-      srcApp9.Stop (Seconds (5.0));
+      srcApp9 = src9.Install (staFirstNode);
+      srcApp9.Start (Seconds (3.0));
+      srcApp9.Stop (Seconds (4.0));
 
       ApplicationContainer srcApp10;
       OnOffHelper src10 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
@@ -448,13 +581,10 @@ std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << delt
       src10.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src10.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src10.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp10 = src10.Install (staFirstNode);
-      srcApp10.Start (Seconds (4.0));
-      srcApp10.Stop (Seconds (5.0));
-  }
+      srcApp10 = src10.Install (staThirdNode);
+      srcApp10.Start (Seconds (3.0));
+      srcApp10.Stop (Seconds (4.0));
 
-  else if (nonDirectSTA == 2) // STA2 do not directly transmit to AP
-  {
       ApplicationContainer srcApp11;
       OnOffHelper src11 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
       src11.SetAttribute ("MaxBytes", UintegerValue (0));
@@ -462,91 +592,288 @@ std::cout << "sally test nonDirectSTA=" << nonDirectSTA << ", deltaSEC=" << delt
       src11.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src11.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src11.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp11 = src11.Install (staFirstNode);
-      srcApp11.Start (Seconds (3.0));
-      srcApp11.Stop (Seconds (4.0));
+      srcApp11 = src11.Install (staSecondNode);
+      srcApp11.Start (Seconds (4.0));
+      srcApp11.Stop (Seconds (5.0));
 
       ApplicationContainer srcApp12;
-      OnOffHelper src12 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+      OnOffHelper src12 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
       src12.SetAttribute ("MaxBytes", UintegerValue (0));
       src12.SetAttribute ("PacketSize", UintegerValue (payloadSize));
       src12.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
       src12.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
       src12.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp12 = src12.Install (staSecondNode);
-      srcApp12.Start (Seconds (3.0));
-      srcApp12.Stop (Seconds (4.0));
-
-      ApplicationContainer srcApp13;
-      OnOffHelper src13 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src13.SetAttribute ("MaxBytes", UintegerValue (0));
-      src13.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src13.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src13.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src13.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp13 = src13.Install (staThirdNode);
-      srcApp13.Start (Seconds (4.0));
-      srcApp13.Stop (Seconds (5.0));
-
-      ApplicationContainer srcApp14;
-      OnOffHelper src14 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
-      src14.SetAttribute ("MaxBytes", UintegerValue (0));
-      src14.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src14.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src14.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src14.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp14 = src14.Install (staSecondNode);
-      srcApp14.Start (Seconds (4.0));
-      srcApp14.Stop (Seconds (5.0));
-  }
-
-  else if (nonDirectSTA == 3) // STA3 do not directly transmit to AP
-  {
-      ApplicationContainer srcApp15;
-      OnOffHelper src15 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src15.SetAttribute ("MaxBytes", UintegerValue (0));
-      src15.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src15.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src15.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src15.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp15 = src15.Install (staFirstNode);
-      srcApp15.Start (Seconds (3.0));
-      srcApp15.Stop (Seconds (4.0));
-
-      ApplicationContainer srcApp16;
-      OnOffHelper src16 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
-      src16.SetAttribute ("MaxBytes", UintegerValue (0));
-      src16.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src16.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src16.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src16.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp16 = src16.Install (staThirdNode);
-      srcApp16.Start (Seconds (3.0));
-      srcApp16.Stop (Seconds (4.0));
-
-      ApplicationContainer srcApp17;
-      OnOffHelper src17 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
-      src17.SetAttribute ("MaxBytes", UintegerValue (0));
-      src17.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src17.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src17.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src17.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp17 = src17.Install (staSecondNode);
-      srcApp17.Start (Seconds (4.0));
-      srcApp17.Stop (Seconds (5.0));
-
-      ApplicationContainer srcApp18;
-      OnOffHelper src18 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
-      src18.SetAttribute ("MaxBytes", UintegerValue (0));
-      src18.SetAttribute ("PacketSize", UintegerValue (payloadSize));
-      src18.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
-      src18.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-      src18.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
-      srcApp18 = src18.Install (staThirdNode);
-      srcApp18.Start (Seconds (4.0));
-      srcApp18.Stop (Seconds (5.0));
+      srcApp12 = src12.Install (staThirdNode);
+      srcApp12.Start (Seconds (4.0));
+      srcApp12.Stop (Seconds (5.0));
   }
 }
+
+
+else if (state == 2)
+{
+   if (concurrentSTA == 1)
+   {
+       if (distance2 < distance3)
+       {
+            ApplicationContainer srcApp13;
+            OnOffHelper src13 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src13.SetAttribute ("MaxBytes", UintegerValue (0));
+            src13.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src13.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src13.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src13.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp13 = src13.Install (staFirstNode);
+            srcApp13.Start (Seconds (3.0));
+            srcApp13.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp14;
+            OnOffHelper src14 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
+            src14.SetAttribute ("MaxBytes", UintegerValue (0));
+            src14.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src14.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src14.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src14.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp14 = src14.Install (staThirdNode);
+            srcApp14.Start (Seconds (3.0));
+            srcApp14.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp15;
+            OnOffHelper src15 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src15.SetAttribute ("MaxBytes", UintegerValue (0));
+            src15.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src15.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src15.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src15.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp15 = src15.Install (staSecondNode);
+            srcApp15.Start (Seconds (4.0));
+            srcApp15.Stop (Seconds (5.0));
+       }
+       else
+       {
+            ApplicationContainer srcApp16;
+            OnOffHelper src16 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src16.SetAttribute ("MaxBytes", UintegerValue (0));
+            src16.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src16.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src16.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src16.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp16 = src16.Install (staFirstNode);
+            srcApp16.Start (Seconds (3.0));
+            srcApp16.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp17;
+            OnOffHelper src17 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+            src17.SetAttribute ("MaxBytes", UintegerValue (0));
+            src17.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src17.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src17.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src17.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp17 = src17.Install (staSecondNode);
+            srcApp17.Start (Seconds (3.0));
+            srcApp17.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp18;
+            OnOffHelper src18 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src18.SetAttribute ("MaxBytes", UintegerValue (0));
+            src18.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src18.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src18.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src18.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp18 = src18.Install (staThirdNode);
+            srcApp18.Start (Seconds (4.0));
+            srcApp18.Stop (Seconds (5.0));
+       }
+   }
+   else if (concurrentSTA == 2)
+   {
+       if (distance1 < distance3)
+       {
+            ApplicationContainer srcApp19;
+            OnOffHelper src19 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src19.SetAttribute ("MaxBytes", UintegerValue (0));
+            src19.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src19.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src19.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src19.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp19 = src19.Install (staSecondNode);
+            srcApp19.Start (Seconds (3.0));
+            srcApp19.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp20;
+            OnOffHelper src20 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
+            src20.SetAttribute ("MaxBytes", UintegerValue (0));
+            src20.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src20.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src20.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src20.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp20 = src20.Install (staThirdNode);
+            srcApp20.Start (Seconds (3.0));
+            srcApp20.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp21;
+            OnOffHelper src21 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src21.SetAttribute ("MaxBytes", UintegerValue (0));
+            src21.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src21.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src21.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src21.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp21 = src21.Install (staFirstNode);
+            srcApp21.Start (Seconds (4.0));
+            srcApp21.Stop (Seconds (5.0));
+       }
+       else
+       {
+            ApplicationContainer srcApp22;
+            OnOffHelper src22 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src22.SetAttribute ("MaxBytes", UintegerValue (0));
+            src22.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src22.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src22.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src22.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp22 = src22.Install (staSecondNode);
+            srcApp22.Start (Seconds (3.0));
+            srcApp22.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp23;
+            OnOffHelper src23 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (2), 9999));
+            src23.SetAttribute ("MaxBytes", UintegerValue (0));
+            src23.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src23.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src23.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src23.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp23 = src23.Install (staFirstNode);
+            srcApp23.Start (Seconds (3.0));
+            srcApp23.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp24;
+            OnOffHelper src24 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src24.SetAttribute ("MaxBytes", UintegerValue (0));
+            src24.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src24.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src24.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src24.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp24 = src24.Install (staThirdNode);
+            srcApp24.Start (Seconds (4.0));
+            srcApp24.Stop (Seconds (5.0));
+       }
+   }
+
+   else if (concurrentSTA == 3)
+   {
+       if (distance1 < distance2)
+       {
+            ApplicationContainer srcApp25;
+            OnOffHelper src25 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src25.SetAttribute ("MaxBytes", UintegerValue (0));
+            src25.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src25.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src25.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src25.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp25 = src25.Install (staThirdNode);
+            srcApp25.Start (Seconds (3.0));
+            srcApp25.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp26;
+            OnOffHelper src26 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (0), 9999));
+            src26.SetAttribute ("MaxBytes", UintegerValue (0));
+            src26.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src26.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src26.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src26.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp26 = src26.Install (staSecondNode);
+            srcApp26.Start (Seconds (3.0));
+            srcApp26.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp27;
+            OnOffHelper src27 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src27.SetAttribute ("MaxBytes", UintegerValue (0));
+            src27.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src27.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src27.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src27.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp27 = src27.Install (staFirstNode);
+            srcApp27.Start (Seconds (4.0));
+            srcApp27.Stop (Seconds (5.0));
+       }
+       else
+       {
+            ApplicationContainer srcApp28;
+            OnOffHelper src28 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src28.SetAttribute ("MaxBytes", UintegerValue (0));
+            src28.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src28.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src28.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src28.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp28 = src28.Install (staThirdNode);
+            srcApp28.Start (Seconds (3.0));
+            srcApp28.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp29;
+            OnOffHelper src29 ("ns3::UdpSocketFactory", InetSocketAddress (staInterfaces.GetAddress (1), 9999));
+            src29.SetAttribute ("MaxBytes", UintegerValue (0));
+            src29.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src29.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src29.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src29.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp29 = src29.Install (staFirstNode);
+            srcApp29.Start (Seconds (3.0));
+            srcApp29.Stop (Seconds (4.0));
+
+            ApplicationContainer srcApp30;
+            OnOffHelper src30 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+            src30.SetAttribute ("MaxBytes", UintegerValue (0));
+            src30.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+            src30.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+            src30.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+            src30.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+            srcApp30 = src30.Install (staSecondNode);
+            srcApp30.Start (Seconds (4.0));
+            srcApp30.Stop (Seconds (5.0));
+       }
+   }
+   else
+       std::cout << "invalid concurrentSTA state." << std::endl; 
+}
+
+
+else if (state == 3)
+{ 
+    ApplicationContainer srcApp31;
+    OnOffHelper src31 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+    src31.SetAttribute ("MaxBytes", UintegerValue (0));
+    src31.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+    src31.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+    src31.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+    src31.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+    srcApp31 = src31.Install (staFirstNode);
+    srcApp31.Start (Seconds (3.0));
+    srcApp31.Stop (Seconds (3.5));
+
+    ApplicationContainer srcApp32;
+    OnOffHelper src32 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+    src32.SetAttribute ("MaxBytes", UintegerValue (0));
+    src32.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+    src32.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+    src32.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+    src32.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+    srcApp32 = src32.Install (staSecondNode);
+    srcApp32.Start (Seconds (3.5));
+    srcApp32.Stop (Seconds (4.0));
+
+    ApplicationContainer srcApp33;
+    OnOffHelper src33 ("ns3::UdpSocketFactory", InetSocketAddress (apInterface.GetAddress (0), 9999));
+    src33.SetAttribute ("MaxBytes", UintegerValue (0));
+    src33.SetAttribute ("PacketSize", UintegerValue (payloadSize));
+    src33.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1e6]"));
+    src33.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+    src33.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate)));
+    srcApp33 = src33.Install (staThirdNode);
+    srcApp33.Start (Seconds (4.0));
+    srcApp33.Stop (Seconds (4.5));
+}
+
+
 
   /* Schedule Throughput Calulcations */
   Simulator::Schedule (Seconds (3.1), &CalculateThroughput, StaticCast<PacketSink> (sinks.Get (0)),
