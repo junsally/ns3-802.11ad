@@ -110,11 +110,10 @@ public:
   virtual void SetPromiscReceiveCallback (PromiscReceiveCallback cb);
   virtual bool SupportsSendFrom (void) const;
 
-  virtual void DoDispose (void);//sally add
 
 
 protected:
-//  virtual void DoDispose (void);
+  virtual void DoDispose (void);
   virtual void DoInitialize (void);
   virtual void NotifyNewAggregate (void);
   /**
