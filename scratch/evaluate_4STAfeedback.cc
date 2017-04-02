@@ -363,10 +363,6 @@ simulateProcess (string phyMode)
   staSecondWifiMac->TraceConnectWithoutContext ("Assoc", MakeBoundCallback (&StationAssoicated, staSecondWifiMac));
   staThirdWifiMac->TraceConnectWithoutContext ("Assoc", MakeBoundCallback (&StationAssoicated, staThirdWifiMac));
 
-  Simulator::Schedule (MilliSeconds (4100), &staFirstWifiNetDevice->DoDispose);
-  Simulator::Schedule (MilliSeconds (4100), &staSecondWifiNetDevice->DoDispose);
-  Simulator::Schedule (MilliSeconds (4100), &staThirdWifiNetDevice->DoDispose);
-
   Simulator::Schedule (MilliSeconds (4100), &simulateProcess, phyMode);
 }
 
