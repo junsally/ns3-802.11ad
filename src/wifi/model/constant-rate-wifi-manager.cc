@@ -53,17 +53,20 @@ ConstantRateWifiManager::GetTypeId (void)
 void
 ConstantRateWifiManager::SetDataMode (WifiMode mode)
 {
+std::cout << "sally test ConstantRateWifiManager, SetDataMode=" << mode << std::endl;
   m_dataMode = mode;
 }
 
 void
 ConstantRateWifiManager::SetControlMode (WifiMode mode)
 {
+std::cout << "sally test ConstantRateWifiManager, SetControlMode=" << mode << std::endl;
   m_ctlMode = mode;
 }
 
 ConstantRateWifiManager::ConstantRateWifiManager ()
 {
+std::cout << "sally test ConstantRateWifiManager, ConstantRateWifiManager" << std::endl;
   NS_LOG_FUNCTION (this);
 }
 
@@ -75,6 +78,7 @@ ConstantRateWifiManager::~ConstantRateWifiManager ()
 WifiRemoteStation *
 ConstantRateWifiManager::DoCreateStation (void) const
 {
+std::cout << "sally test ConstantRateWifiManager, DoCreateStation" << std::endl;
   NS_LOG_FUNCTION (this);
   WifiRemoteStation *station = new WifiRemoteStation ();
   return station;
@@ -84,18 +88,21 @@ void
 ConstantRateWifiManager::DoReportRxOk (WifiRemoteStation *station,
                                        double rxSnr, WifiMode txMode)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportRxOk" << std::endl;
   NS_LOG_FUNCTION (this << station << rxSnr << txMode);
 }
 
 void
 ConstantRateWifiManager::DoReportRtsFailed (WifiRemoteStation *station)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportRtsFailed " << station << std::endl;
   NS_LOG_FUNCTION (this << station);
 }
 
 void
 ConstantRateWifiManager::DoReportDataFailed (WifiRemoteStation *station)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportDataFailed " << station << std::endl;
   NS_LOG_FUNCTION (this << station);
 }
 
@@ -103,6 +110,7 @@ void
 ConstantRateWifiManager::DoReportRtsOk (WifiRemoteStation *st,
                                         double ctsSnr, WifiMode ctsMode, double rtsSnr)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportRtsOk, st " << st << ", ctsSnr=" << ctsSnr << ", ctsMode=" << ctsMode << ", rtsSnr=" << rtsSnr << std::endl;
   NS_LOG_FUNCTION (this << st << ctsSnr << ctsMode << rtsSnr);
 }
 
@@ -110,24 +118,28 @@ void
 ConstantRateWifiManager::DoReportDataOk (WifiRemoteStation *st,
                                          double ackSnr, WifiMode ackMode, double dataSnr)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportDataOk, st=" << st << ", ackSnr=" << ackSnr << ", ackMode=" << ackMode << ", dataSnr=" << dataSnr << std::endl;
   NS_LOG_FUNCTION (this << st << ackSnr << ackMode << dataSnr);
 }
 
 void
 ConstantRateWifiManager::DoReportFinalRtsFailed (WifiRemoteStation *station)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportFinalRtsFailed, station=" << station << std::endl;
   NS_LOG_FUNCTION (this << station);
 }
 
 void
 ConstantRateWifiManager::DoReportFinalDataFailed (WifiRemoteStation *station)
 {
+std::cout << "sally test ConstantRateWifiManager, DoReportFinalDataFailed, station=" << station << std::endl;
   NS_LOG_FUNCTION (this << station);
 }
 
 WifiTxVector
 ConstantRateWifiManager::DoGetDataTxVector (WifiRemoteStation *st)
 {
+std::cout << "sally test ConstantRateWifiManager, DoGetDataTxVector, st=" << st << std::endl;
   NS_LOG_FUNCTION (this << st);
   return WifiTxVector (m_dataMode, GetDefaultTxPowerLevel (), GetLongRetryCount (st), GetShortGuardInterval (st), Min(GetNumberOfTransmitAntennas (), GetNumberOfSupportedRxAntennas (st)), 0, GetChannelWidth (st), GetAggregation (st), false);
 }
@@ -135,6 +147,7 @@ ConstantRateWifiManager::DoGetDataTxVector (WifiRemoteStation *st)
 WifiTxVector
 ConstantRateWifiManager::DoGetRtsTxVector (WifiRemoteStation *st)
 {
+std::cout << "sally test ConstantRateWifiManager, DoGetRtsTxVector, st=" << st << std::endl;
   NS_LOG_FUNCTION (this << st);
   return WifiTxVector (m_ctlMode, GetDefaultTxPowerLevel (), GetShortRetryCount (st), GetShortGuardInterval (st), 1, 0, GetChannelWidth (st), GetAggregation (st), false);
 }
@@ -142,6 +155,7 @@ ConstantRateWifiManager::DoGetRtsTxVector (WifiRemoteStation *st)
 bool
 ConstantRateWifiManager::IsLowLatency (void) const
 {
+std::cout << "sally test ConstantRateWifiManager, IsLowLatency" << std::endl;
   NS_LOG_FUNCTION (this);
   return true;
 }

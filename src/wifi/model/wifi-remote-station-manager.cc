@@ -379,6 +379,7 @@ WifiRemoteStationManager::~WifiRemoteStationManager ()
 void
 WifiRemoteStationManager::DoDispose (void)
 {
+std::cout << "sally test WifiRemoteStationManager -> DoDispose" << std::endl;
   for (StationStates::const_iterator i = m_states.begin (); i != m_states.end (); i++)
     {
       delete (*i);
@@ -399,6 +400,7 @@ WifiRemoteStationManager::SetupPhy (Ptr<WifiPhy> phy)
   //this in order to find the relevant mandatory rates when chosing a
   //transmit rate for automatic control responses like
   //acknowledgements.
+std::cout << "sally test WifiRemoteStationManager -> SetupPhy" << std::endl;
   m_wifiPhy = phy;
   m_defaultTxMode = phy->GetMode (0);
   if (HasHtSupported () || HasVhtSupported ())
@@ -413,6 +415,7 @@ WifiRemoteStationManager::SetupMac (Ptr<WifiMac> mac)
 {
   //We need to track our MAC because it is the object that knows the
   //full set of interframe spaces.
+std::cout << "sally test WifiRemoteStationManager -> SetupMac" << std::endl;
   m_wifiMac = mac;
   Reset ();
 }
@@ -420,18 +423,21 @@ WifiRemoteStationManager::SetupMac (Ptr<WifiMac> mac)
 void
 WifiRemoteStationManager::SetHtSupported (bool enable)
 {
+std::cout << "sally test WifiRemoteStationManager -> SetHtSupported" << std::endl;
   m_htSupported = enable;
 }
 
 void
 WifiRemoteStationManager::SetMaxSsrc (uint32_t maxSsrc)
 {
+std::cout << "sally test WifiRemoteStationManager -> SetMaxSsrc" << std::endl;
   m_maxSsrc = maxSsrc;
 }
 
 void
 WifiRemoteStationManager::SetMaxSlrc (uint32_t maxSlrc)
 {
+std::cout << "sally test WifiRemoteStationManager -> SetMaxSlrc" << std::endl;
   m_maxSlrc = maxSlrc;
 }
 
@@ -604,6 +610,7 @@ WifiRemoteStationManager::AddAllSupportedModes (Mac48Address address)
 void
 WifiRemoteStationManager::AddAllSupportedMcs (Mac48Address address)
 {
+std::cout << "sally test WifiRemoteStationManager -> AddAllSupportedMcs, address=" << address << std::endl;
   NS_LOG_FUNCTION (this << address);
   NS_ASSERT (!address.IsGroup ());
   WifiRemoteStationState *state = LookupState (address);
@@ -617,6 +624,7 @@ WifiRemoteStationManager::AddAllSupportedMcs (Mac48Address address)
 void
 WifiRemoteStationManager::AddSupportedMcs (Mac48Address address, WifiMode mcs)
 {
+std::cout << "sally test WifiRemoteStationManager -> AddSupportedMcs, address" << address << ", mcs=" << mcs << std::endl;
   NS_LOG_FUNCTION (this << address << mcs);
   NS_ASSERT (!address.IsGroup ());
   WifiRemoteStationState *state = LookupState (address);
@@ -1680,6 +1688,7 @@ WifiRemoteStationManager::GetDefaultMode (void) const
 WifiMode
 WifiRemoteStationManager::GetDefaultMcs (void) const
 {
+std::cout << "sally test WifiRemoteStationManager -> GetDefaultMcs" << std::endl;
   return m_defaultTxMcs;
 }
 
@@ -1773,6 +1782,7 @@ WifiRemoteStationManager::GetNonErpBasicMode (uint32_t i) const
 void
 WifiRemoteStationManager::AddBasicMcs (WifiMode mcs)
 {
+std::cout << "sally test WifiRemoteStationManager -> AddBasicMcs, mcs=" << mcs << std::endl;
   NS_LOG_FUNCTION (this << (uint32_t)mcs.GetMcsValue ());
   for (uint32_t i = 0; i < GetNBasicMcs (); i++)
     {
@@ -1787,12 +1797,14 @@ WifiRemoteStationManager::AddBasicMcs (WifiMode mcs)
 uint32_t
 WifiRemoteStationManager::GetNBasicMcs (void) const
 {
+std::cout << "sally test WifiRemoteStationManager -> GetNBasicMcs" << std::endl;
   return m_bssBasicMcsSet.size ();
 }
 
 WifiMode
 WifiRemoteStationManager::GetBasicMcs (uint32_t i) const
 {
+std::cout << "sally test WifiRemoteStationManager -> GetBasicMcs" << std::endl;
   NS_ASSERT (i < GetNBasicMcs ());
   return m_bssBasicMcsSet[i];
 }
@@ -1854,6 +1866,7 @@ WifiRemoteStationManager::GetSupported (const WifiRemoteStation *station, uint32
 WifiMode
 WifiRemoteStationManager::GetMcsSupported (const WifiRemoteStation *station, uint32_t i) const
 {
+std::cout << "sally test WifiRemoteStationManager -> GetMcsSupported, station=" << station << ", i=" << i << std::endl;
   NS_ASSERT (i < GetNMcsSupported (station));
   return station->m_state->m_operationalMcsSet[i];
 }
@@ -2003,6 +2016,7 @@ WifiRemoteStationManager::GetVhtSupported (const WifiRemoteStation *station) con
 uint32_t
 WifiRemoteStationManager::GetNMcsSupported (const WifiRemoteStation *station) const
 {
+std::cout << "sally test WifiRemoteStationManager -> GetNMcsSupported, station=" << station << std::endl;
   return station->m_state->m_operationalMcsSet.size ();
 }
 
