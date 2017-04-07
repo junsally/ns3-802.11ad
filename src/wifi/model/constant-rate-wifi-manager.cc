@@ -88,7 +88,7 @@ void
 ConstantRateWifiManager::DoReportRxOk (WifiRemoteStation *station,
                                        double rxSnr, WifiMode txMode)
 {
-std::cout << "sally test ConstantRateWifiManager, DoReportRxOk" << std::endl;
+std::cout << "sally test ConstantRateWifiManager, DoReportRxOk, station=" << station << ", rxSnr=" << rxSnr << ", txMode=" << txMode << std::endl;
   NS_LOG_FUNCTION (this << station << rxSnr << txMode);
 }
 
